@@ -1,0 +1,217 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <h2 class="text-2xl font-bold">Dashboard</h2>
+  <div>
+    <span class="mr-4">Signed in as {{ user.username }}</span>
+    <a href="{% url 'logout' %}" class="text-sm text-gray-300 hover:text-white">Logout</a>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+  <div class="lg:col-span-2 bg-gray-800 rounded p-4"> 
+    <h3 class="font-semibold mb-4">Your Todos</h3>
+    <div id="todos-root">
+      <div id="todos-list" class="space-y-3 text-gray-200">
+        Loading...
+      </div>
+      <div class="mt-6 border-t border-gray-700 pt-4">
+        <h4 class="font-medium mb-3">Create New Todo</h4>
+        <div class="space-y-3">
+          <input id="new-title" placeholder="Todo title" class="w-full rounded bg-gray-700 px-3 py-2 text-gray-100" />
+          <textarea id="new-description" placeholder="Description (optional)" class="w-full rounded bg-gray-700 px-3 py-2 text-gray-100 h-20"></textarea>
+          <input id="new-due-date" type="datetime-local" class="w-full rounded bg-gray-700 px-3 py-2 text-gray-100" />
+          <input id="new-tags" placeholder="Tags (comma separated)" class="w-full rounded bg-gray-700 px-3 py-2 text-gray-100" />
+          <button id="create-todo" class="bg-green-600 hover:bg-green-500 px-4 py-2 rounded font-medium">Create Todo</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="bg-gray-800 rounded p-4">
+    <h3 class="font-semibold mb-2">Quick Actions</h3>
+    <p class="text-sm text-gray-400 mb-4">Manage your todos from the dashboard.</p>
+    <div class="space-y-2">
+      <button id="refresh-todos" class="w-full bg-blue-600 hover:bg-blue-500 px-3 py-2 rounded">Refresh Todos</button>
+      <button id="clear-completed" class="w-full bg-purple-600 hover:bg-purple-500 px-3 py-2 rounded">Clear Completed</button>
+    </div>
+  </div>
+</div>
+ 
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+// CSRF helper for axios
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
+}
+axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+const csrftoken = getCookie('csrftoken');
+if (csrftoken) axios.defaults.headers.common['X-CSRFToken'] = csrftoken;
+
+const todosListEl = document.getElementById('todos-list');
+const newTitleEl = document.getElementById('new-title');
+const newDescriptionEl = document.getElementById('new-description');
+const newDueDateEl = document.getElementById('new-due-date');
+const newTagsEl = document.getElementById('new-tags');
+
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  return new Date(dateStr).toLocaleString();
+}
+
+function renderTodos(todos){
+  if (!todos.length) {
+    todosListEl.innerHTML = '<div class="text-gray-400 text-center py-8">No todos yet. Create your first one below!</div>';
+    return;
+  }
+  todosListEl.innerHTML = '';
+  todos.forEach(t => {
+    const el = document.createElement('div');
+    el.className = `border border-gray-700 rounded-lg p-4 ${t.completed ? 'bg-gray-800 opacity-75' : 'bg-gray-750'}`;
+    el.innerHTML = `
+      <div class="flex items-start justify-between">
+        <div class="flex items-start gap-3 flex-1">
+          <input type="checkbox" data-id="${t.id}" class="toggle-completed h-5 w-5 mt-1" ${t.completed ? 'checked' : ''} />
+          <div class="flex-1">
+            <div class="font-semibold text-lg ${t.completed ? 'line-through text-gray-400' : 'text-gray-100'}">${t.title}</div>
+            ${t.description ? `<div class="text-gray-300 mt-1">${t.description}</div>` : ''}
+            <div class="flex flex-wrap gap-4 mt-2 text-sm text-gray-400">
+              ${t.tags && t.tags.length ? `<span>🏷️ ${t.tags.join(', ')}</span>` : ''}
+              ${t.due_date ? `<span>📅 Due: ${formatDate(t.due_date)}</span>` : ''}
+              <span>📝 Created: ${formatDate(t.created_at)}</span>
+              ${t.updated_at !== t.created_at ? `<span>✏️ Updated: ${formatDate(t.updated_at)}</span>` : ''}
+            </div>
+          </div>
+        </div>
+        <div class="flex gap-2 ml-4">
+          <button data-id="${t.id}" class="edit-todo bg-yellow-500 hover:bg-yellow-400 px-3 py-1 rounded text-sm">Edit</button>
+          <button data-id="${t.id}" class="delete-todo bg-red-600 hover:bg-red-500 px-3 py-1 rounded text-sm">Delete</button>
+        </div>
+      </div>
+    `;
+    todosListEl.appendChild(el);
+  });
+  // attach delete handlers
+  document.querySelectorAll('.delete-todo').forEach(btn => {
+    btn.addEventListener('click', async (ev) => {
+      const id = ev.currentTarget.getAttribute('data-id');
+      try {
+        await axios.delete(`/api/todos/${id}/`);
+        fetchTodos();
+      } catch (e) {
+        alert('Failed to delete');
+      }
+    });
+  });
+  // attach toggle handlers
+  document.querySelectorAll('.toggle-completed').forEach(cb => {
+    cb.addEventListener('change', async (ev) => {
+      const id = ev.currentTarget.getAttribute('data-id');
+      const completed = ev.currentTarget.checked;
+      try {
+        await axios.patch(`/api/todos/${id}/`, { completed });
+        fetchTodos();
+      } catch (e) {
+        alert('Failed to update completed state');
+      }
+    });
+  });
+
+  // attach edit handlers (modal-style with prompts for all fields)
+  document.querySelectorAll('.edit-todo').forEach(btn => {
+    btn.addEventListener('click', async (ev) => {
+      const id = ev.currentTarget.getAttribute('data-id');
+      const todo = window.currentTodos.find(t => t.id == id);
+      if (!todo) return;
+      
+      const newTitle = prompt('Edit title:', todo.title);
+      if (newTitle === null) return; // cancelled
+      
+      const newDescription = prompt('Edit description:', todo.description || '');
+      if (newDescription === null) return;
+      
+      const dueDateStr = todo.due_date ? new Date(todo.due_date).toISOString().slice(0, 16) : '';
+      const newDueDate = prompt('Edit due date (YYYY-MM-DDTHH:MM or leave empty):', dueDateStr);
+      if (newDueDate === null) return;
+      
+      const tagsInput = prompt('Tags (comma separated):', (todo.tags || []).join(', '));
+      if (tagsInput === null) return;
+      
+      const tags = tagsInput ? tagsInput.split(',').map(s => s.trim()).filter(Boolean) : [];
+      
+      try {
+        const payload = { 
+          title: newTitle, 
+          description: newDescription || null,
+          tags: tags.length ? tags : null
+        };
+        if (newDueDate) {
+          payload.due_date = new Date(newDueDate).toISOString();
+        } else {
+          payload.due_date = null;
+        }
+        await axios.patch(`/api/todos/${id}/`, payload);
+        fetchTodos();
+      } catch (e) {
+        alert('Failed to update todo: ' + (e.response?.data?.error || 'Unknown error'));
+      }
+    });
+  });
+}
+
+async function fetchTodos(){
+  todosListEl.innerHTML = 'Loading...';
+  try{
+    const resp = await axios.get('/api/todos/');
+    window.currentTodos = resp.data || []; // Store for edit operations
+    renderTodos(window.currentTodos);
+  } catch(e) {
+    todosListEl.innerHTML = '<div class="text-red-400">Failed to load todos</div>';
+  }
+}
+
+document.getElementById('create-todo').addEventListener('click', async ()=>{
+  const title = newTitleEl.value && newTitleEl.value.trim();
+  if (!title) return alert('Enter a title');
+  
+  const description = newDescriptionEl.value.trim() || null;
+  const dueDate = newDueDateEl.value ? new Date(newDueDateEl.value).toISOString() : null;
+  const tagsInput = newTagsEl.value.trim();
+  const tags = tagsInput ? tagsInput.split(',').map(s => s.trim()).filter(Boolean) : null;
+  
+  try{
+    const payload = { title, description, due_date: dueDate, tags };
+    await axios.post('/api/todos/', payload);
+    newTitleEl.value = '';
+    newDescriptionEl.value = '';
+    newDueDateEl.value = '';
+    newTagsEl.value = '';
+    fetchTodos();
+  } catch(e){
+    alert('Failed to create todo: ' + (e.response?.data?.error || 'Unknown error'));
+  }
+});
+
+document.getElementById('refresh-todos').addEventListener('click', fetchTodos);
+
+document.getElementById('clear-completed').addEventListener('click', async () => {
+  if (!confirm('Delete all completed todos?')) return;
+  try {
+    const completed = window.currentTodos.filter(t => t.completed);
+    for (const todo of completed) {
+      await axios.delete(`/api/todos/${todo.id}/`);
+    }
+    fetchTodos();
+  } catch (e) {
+    alert('Failed to clear completed todos');
+  }
+});
+
+// Initial load
+fetchTodos();
+</script>
+{% endblock %}
