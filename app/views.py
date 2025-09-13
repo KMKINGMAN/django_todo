@@ -86,36 +86,3 @@ class TodoViewSet(viewsets.ModelViewSet):
 @login_required
 def dashboard(request):
 	return render(request, 'dashboard.html', {'user': request.user})
-
-
-@api_view(['GET', 'POST', 'DELETE'])
-@permission_classes([IsAuthenticated])
-def my_todos_api(request: Request):
-    """DRF view for listing, creating, and deleting todos for the authenticated user."""
-    if request.method == 'GET':
-        todos = Todo.objects.filter(user=request.user).order_by('-created_at')
-        serializer = TodoSerializer(todos, many=True)
-        return Response({'todos': serializer.data})
-
-    if request.method == 'POST':
-        serializer = TodoSerializer(data=request.data)
-        if serializer.is_valid():
-            todo = serializer.save()
-            todo.user.add(request.user)
-            out = TodoSerializer(todo)
-            return Response(out.data, status=201)
-        return Response(serializer.errors, status=400)
-    if request.method == 'DELETE':
-        todo_id = request.data.get('id')
-        if not todo_id:
-            return Response({'error': 'id required'}, status=400)
-        try:
-            todo = Todo.objects.get(id=todo_id)
-        except Todo.DoesNotExist:
-            return Response({'error': 'Not found'}, status=404)
-        if request.user not in todo.user.all():
-            return Response({'error': 'Forbidden'}, status=403)
-        todo.delete()
-        return Response(status=204)
-
-

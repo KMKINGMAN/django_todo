@@ -7,5 +7,4 @@ router.register(r'todos', TodoViewSet, basename='todo')
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('my-todos/', my_todos_api, name='my-todos'),
 ]
