@@ -19,7 +19,6 @@ from .models import Todo
 
 class TodoSerializer(serializers.ModelSerializer):
     """Serializer for Todo model with user association and tags support."""
-    
     user = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all(), 
         many=True, 
@@ -68,76 +67,6 @@ class TodoViewSet(viewsets.ModelViewSet):
         """Associate created todo with current user."""
         todo = serializer.save()
         todo.user.add(self.request.user)
-
-
-@api_view(['GET', 'POST', 'PATCH', 'DELETE'])
-@permission_classes([IsAuthenticated])
-def todo_function_view(request: Request):
-    """
-    Function-based view for todo operations.
-    
-    Note: This is kept for compatibility but TodoViewSet is preferred.
-    """
-    if request.method == 'GET':
-        todos = Todo.objects.filter(
-            user=request.user
-        ).order_by('-created_at')
-        serializer = TodoSerializer(todos, many=True)
-        return Response(serializer.data)
-        
-    elif request.method == 'POST':
-        serializer = TodoSerializer(data=request.data)
-        if serializer.is_valid():
-            todo_instance = serializer.save()
-            todo_instance.user.add(request.user)
-            return Response(serializer.data, status=201)
-        return Response(serializer.errors, status=400)
-        
-    elif request.method == 'PATCH':
-        todo_id = request.data.get('id')
-        if not todo_id:
-            return Response(
-                {'error': 'ID is required for PATCH'}, 
-                status=400
-            )
-            
-        try:
-            todo_instance = Todo.objects.get(id=todo_id)
-        except Todo.DoesNotExist:
-            return Response(
-                {'error': 'Todo not found'}, 
-                status=404
-            )
-            
-        serializer = TodoSerializer(
-            todo_instance, 
-            data=request.data, 
-            partial=True
-        )
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=400)
-        
-    elif request.method == 'DELETE':
-        todo_id = request.data.get('id')
-        if not todo_id:
-            return Response(
-                {'error': 'ID is required for DELETE'}, 
-                status=400
-            )
-            
-        try:
-            todo_instance = Todo.objects.get(id=todo_id)
-        except Todo.DoesNotExist:
-            return Response(
-                {'error': 'Todo not found'}, 
-                status=404
-            )
-            
-        todo_instance.delete()
-        return Response(status=204)
-
 
 @login_required
 def dashboard(request):
