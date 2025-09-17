@@ -18,7 +18,7 @@ class Task(models.Model):
         created_at: Timestamp when task was created
         updated_at: Timestamp when task was last modified
         user: Foreign key to User model (owner of the task)
-        todos: Many-to-many relationship with Todo model
+        todos: Reverse relationship from Todo model
     """
     
     title = models.CharField(max_length=200)
@@ -29,11 +29,6 @@ class Task(models.Model):
         User,
         on_delete=models.CASCADE,
         related_name='tasks'
-    )
-    todos = models.ManyToManyField(
-        'Todo',
-        related_name='tasks',
-        blank=True
     )
 
     class Meta:

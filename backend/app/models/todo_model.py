@@ -33,10 +33,20 @@ class Todo(models.Model):
     due_date = models.DateTimeField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    user = models.ManyToManyField(
+    user = models.ForeignKey(
         User, 
+        on_delete=models.CASCADE,
         related_name='todos', 
+        null=True,
         blank=True
+    )
+    task = models.ForeignKey(
+        'Task',
+        on_delete=models.CASCADE,
+        related_name='todos',
+        null=True,
+        blank=True,
+        help_text="Task this todo belongs to (optional)"
     )
     tags = models.JSONField(
         blank=True, 
