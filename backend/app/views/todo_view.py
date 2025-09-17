@@ -28,8 +28,7 @@ class TodoViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         """Associate created todo with current user."""
-        todo = serializer.save()
-        todo.user.add(self.request.user)
+        serializer.save(user=self.request.user)
 
 @login_required
 def dashboard(request):

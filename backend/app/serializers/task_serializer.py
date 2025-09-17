@@ -2,30 +2,45 @@
     Task Serializers for the Todo application.
 """
 from rest_framework import serializers
-from .todo_serializer import TodoSerializer
 from ..models import Task, Todo
+
+class TaskTodoSerializer(serializers.ModelSerializer):
+    """Simplified serializer for todos within tasks to avoid circular imports."""
+    class Meta:
+        model = Todo
+        fields = ['id', 'title', 'description', 'completed', 'created_at', 'updated_at', 'tags', 'due_date']
 
 class TaskSerializer(serializers.ModelSerializer):
     """Serializer for Task model with nested todos support."""
-    todos = TodoSerializer(many=True, required=False)
+    todos = serializers.SerializerMethodField()
+    todos_count = serializers.SerializerMethodField()
     user = serializers.StringRelatedField(read_only=True)
 
     class Meta:
         model = Task
-        fields = ['id', 'title', 'description', 'created_at', 'updated_at', 'user', 'todos']
+        fields = ['id', 'title', 'description', 'created_at', 'updated_at', 'user', 'todos', 'todos_count']
         read_only_fields = ['created_at', 'updated_at', 'user']
 
+    def get_todos(self, obj):
+        """Get todos for this task filtered by current user."""
+        request = self.context.get('request')
+        if request and hasattr(request, 'user') and request.user.is_authenticated:
+            # Get todos that belong to this task and current user
+            todos_queryset = obj.todos.filter(user=request.user).order_by('-created_at')
+            return TaskTodoSerializer(todos_queryset, many=True).data
+        return []
+
+    def get_todos_count(self, obj):
+        """Get the count of todos for this task filtered by current user."""
+        request = self.context.get('request')
+        if request and hasattr(request, 'user') and request.user.is_authenticated:
+            return obj.todos.filter(user=request.user).count()
+        return 0
+
     def create(self, validated_data):
-        """Create a new Task instance with nested todos."""
-        todos_data = validated_data.pop('todos', [])
-        task = Task.objects.create(**validated_data)
-        
-        for todo_data in todos_data:
-            todo = Todo.objects.create(**todo_data)
-            todo.user.add(self.context['request'].user)
-            task.todos.add(todo)
-            
-        return task
+        """Create a new Task instance."""
+        validated_data['user'] = self.context['request'].user
+        return super().create(validated_data)
 
     def update(self, instance, validated_data):
         """Update Task instance and replace its todos."""

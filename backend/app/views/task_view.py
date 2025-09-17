@@ -21,8 +21,8 @@ class TaskViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         """Return tasks filtered by current user or all for superuser."""
         if self.request.user.is_superuser:
-            return Task.objects.all().order_by('-created_at')
-        return Task.objects.filter(user=self.request.user).order_by('-created_at')
+            return Task.objects.prefetch_related('todos').all().order_by('-created_at')
+        return Task.objects.filter(user=self.request.user).prefetch_related('todos').order_by('-created_at')
 
     def perform_create(self, serializer):
         """Associate created task with current user."""
