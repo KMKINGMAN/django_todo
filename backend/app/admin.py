@@ -11,10 +11,12 @@ from .models import Todo, Task
 
 class TodoInline(admin.TabularInline):
     """Inline admin for managing todos within a task."""
-    model = Task.todos.through
+    model = Todo
+    fk_name = 'task'
     extra = 1
     verbose_name = "Todo"
     verbose_name_plural = "Todos"
+    fields = ['title', 'description', 'completed', 'due_date']
 
 
 @admin.register(Todo)
@@ -26,7 +28,7 @@ class TodoAdmin(admin.ModelAdmin):
         'created_at', 'updated_at', 'tags', 'description'
     )
     list_filter = (
-        'completed', 'tags', 'user', 'created_at', 'updated_at'
+        'completed', 'tags', 'task', 'user', 'created_at', 'updated_at'
     )
     search_fields = ('title', 'description', 'tags')
     list_editable = ('completed',)
@@ -42,12 +44,11 @@ class TodoAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
         ('Organization', {
-            'fields': ('tags', 'user')
+            'fields': ('tags', 'user', 'task')
         }),
     )
     
     readonly_fields = ('created_at', 'updated_at')
-    filter_horizontal = ('user',)
 
 
 @admin.register(Task)
@@ -74,7 +75,6 @@ class TaskAdmin(admin.ModelAdmin):
     
     readonly_fields = ('created_at', 'updated_at')
     inlines = [TodoInline]
-    filter_horizontal = ('todos',)
 
     def todos_count(self, obj):
         """Return the number of todos in this task."""
