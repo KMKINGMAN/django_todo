@@ -5,7 +5,6 @@ This module defines the admin interface for managing Todo and Task instances.
 """
 
 from django.contrib import admin
-
 from .models import Todo, Task
 
 
@@ -22,9 +21,8 @@ class TodoInline(admin.TabularInline):
 @admin.register(Todo)
 class TodoAdmin(admin.ModelAdmin):
     """Admin interface for Todo model."""
-    
     list_display = (
-        'id', 'title', 'completed', 'due_date', 
+        'id', 'title', 'completed', 'due_date',
         'created_at', 'updated_at', 'tags', 'description'
     )
     list_filter = (
@@ -34,7 +32,6 @@ class TodoAdmin(admin.ModelAdmin):
     list_editable = ('completed',)
     list_per_page = 25
     date_hierarchy = 'created_at'
-    
     fieldsets = (
         ('Basic Information', {
             'fields': ('title', 'description', 'completed')
@@ -47,14 +44,12 @@ class TodoAdmin(admin.ModelAdmin):
             'fields': ('tags', 'user', 'task')
         }),
     )
-    
     readonly_fields = ('created_at', 'updated_at')
 
 
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
     """Admin interface for Task model with inline todo editing."""
-    
     list_display = (
         'id', 'title', 'user', 'created_at', 'updated_at', 'todos_count'
     )
@@ -62,7 +57,6 @@ class TaskAdmin(admin.ModelAdmin):
     search_fields = ('title', 'description', 'user__username')
     list_per_page = 25
     date_hierarchy = 'created_at'
-    
     fieldsets = (
         ('Basic Information', {
             'fields': ('title', 'description', 'user')
@@ -72,7 +66,6 @@ class TaskAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
     )
-    
     readonly_fields = ('created_at', 'updated_at')
     inlines = [TodoInline]
 
@@ -91,7 +84,8 @@ class TaskAdmin(admin.ModelAdmin):
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         """Limit user selection to current user for non-superusers."""
         if db_field.name == "user" and not request.user.is_superuser:
-            kwargs["queryset"] = db_field.related_model.objects.filter(id=request.user.id)
+            kwargs["queryset"] = db_field.related_model.objects.filter(
+                id=request.user.id)
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
     def save_model(self, request, obj, form, change):

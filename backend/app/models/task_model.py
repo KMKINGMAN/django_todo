@@ -11,7 +11,7 @@ from django.db import models
 class Task(models.Model):
     """
     Task model representing a collection of todos.
-    
+
     Attributes:
         title: The title/name of the task
         description: Optional detailed description
@@ -20,7 +20,6 @@ class Task(models.Model):
         user: Foreign key to User model (owner of the task)
         todos: Reverse relationship from Todo model
     """
-    
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -31,7 +30,7 @@ class Task(models.Model):
         related_name='tasks'
     )
 
-    class Meta:
+    class Meta:  # pylint: disable=too-few-public-methods
         """Meta options for Task model."""
         ordering = ['-created_at']
         verbose_name = 'Task'
@@ -39,13 +38,13 @@ class Task(models.Model):
 
     def __str__(self):
         """Return string representation of Task."""
-        if len(self.title) > 50:
-            return f"{self.title[:50]}..."
-        return self.title
+        if self.title and len(self.title) > 50:
+            return f"{self.title[:50]}..."  # pylint: disable=unsubscriptable-object
+        return self.title or ""
 
     def __repr__(self):
         """Return detailed string representation for debugging."""
         return (
-            f"Task(id={self.id}, title='{self.title}', "
-            f"user={self.user.username})"
+            f"Task(id={self.id}, title='{self.title}', "  # pylint: disable=no-member
+            f"user={getattr(self.user, 'username', 'None') if self.user else 'None'})"
         )
