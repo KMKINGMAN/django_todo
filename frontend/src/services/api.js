@@ -21,6 +21,11 @@ export const login = (username, password) => {
   return api.post('/api/auth/login/', { username, password });
 };
 
+export const logout = () => {
+  localStorage.removeItem('token');
+  localStorage.removeItem('username');
+};
+
 export const getTasks = () => {
   return api.get('/api/tasks/');
 };
