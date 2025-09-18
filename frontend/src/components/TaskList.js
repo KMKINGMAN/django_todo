@@ -1,8 +1,43 @@
-import React from 'react';
-import { List, ListItem, ListItemText, Paper, Typography, Box, Chip, Button } from '@mui/material';
-import { Visibility, Add } from '@mui/icons-material';
+import React, { useState } from 'react';
+import { List, ListItem, ListItemText, Paper, Typography, Box, Chip, Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Alert } from '@mui/material';
+import { Visibility, Add, Delete } from '@mui/icons-material';
 
-const TaskList = ({ tasks, onTaskClick, onQuickAddTodo }) => {
+const TaskList = ({ tasks, onTaskClick, onQuickAddTodo, onDeleteTask }) => {
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [taskToDelete, setTaskToDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleDeleteClick = (task, event) => {
+    event.stopPropagation();
+    setTaskToDelete(task);
+    setDeleteDialogOpen(true);
+    setError('');
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!taskToDelete) return;
+    
+    setDeleting(true);
+    setError('');
+    
+    try {
+      await onDeleteTask(taskToDelete.id);
+      setDeleteDialogOpen(false);
+      setTaskToDelete(null);
+    } catch (error) {
+      console.error('Error deleting task:', error);
+      setError('Failed to delete task. Please try again.');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteDialogOpen(false);
+    setTaskToDelete(null);
+    setError('');
+  };
   if (tasks.length === 0) {
     return (
       <Paper sx={{ p: 2 }}>
@@ -45,6 +80,14 @@ const TaskList = ({ tasks, onTaskClick, onQuickAddTodo }) => {
                     >
                       View
                     </Button>
+                    <Button
+                      size="small"
+                      color="error"
+                      startIcon={<Delete />}
+                      onClick={(e) => handleDeleteClick(task, e)}
+                    >
+                      Delete
+                    </Button>
                   </Box>
                 </Box>
               }
@@ -64,6 +107,46 @@ const TaskList = ({ tasks, onTaskClick, onQuickAddTodo }) => {
           </ListItem>
         ))}
       </List>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={handleDeleteCancel}
+        aria-labelledby="delete-dialog-title"
+        aria-describedby="delete-dialog-description"
+      >
+        <DialogTitle id="delete-dialog-title">
+          Delete Task
+        </DialogTitle>
+        <DialogContent>
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
+          <DialogContentText id="delete-dialog-description">
+            Are you sure you want to delete "{taskToDelete?.title}"?
+            {taskToDelete?.todos_count > 0 && (
+              <Box sx={{ mt: 1, color: 'warning.main' }}>
+                <strong>Warning:</strong> This will also delete {taskToDelete.todos_count} todo(s) associated with this task.
+              </Box>
+            )}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDeleteCancel} disabled={deleting}>
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleDeleteConfirm} 
+            color="error" 
+            variant="contained"
+            disabled={deleting}
+          >
+            {deleting ? 'Deleting...' : 'Delete'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Paper>
   );
 };

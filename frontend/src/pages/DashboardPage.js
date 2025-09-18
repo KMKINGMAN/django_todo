@@ -6,7 +6,7 @@ import TaskList from '../components/TaskList';
 import TodoForm from '../components/TodoForm';
 import TodoList from '../components/TodoList';
 import TaskDetailView from '../components/TaskDetailView';
-import { getTasks, getTodos, addTask, addTodo } from '../services/api';
+import { getTasks, getTodos, addTask, addTodo, removeTask, removeTodo } from '../services/api';
 
 const DashboardPage = () => {
   const [tasks, setTasks] = useState([]);
@@ -130,6 +130,55 @@ const DashboardPage = () => {
     }
   };
 
+  const handleDeleteTask = async (taskId) => {
+    try {
+      await removeTask(taskId);
+      
+      // Remove the task from the state
+      setTasks(tasks.filter(task => task.id !== taskId));
+      
+      // If we're viewing this task, go back to tasks view
+      if (selectedTask && selectedTask.id === taskId) {
+        setSelectedTask(null);
+        setView('tasks');
+      }
+      
+      // Refresh todos to remove any todos that belonged to this task
+      const todosResponse = await getTodos();
+      setTodos(todosResponse.data);
+      
+    } catch (error) {
+      console.error('Error deleting task:', error);
+      throw error; // Re-throw to handle in component
+    }
+  };
+
+  const handleDeleteTodo = async (todoId) => {
+    try {
+      await removeTodo(todoId);
+      
+      // Remove the todo from the state
+      setTodos(todos.filter(todo => todo.id !== todoId));
+      
+      // Update the selected task's todos if viewing task detail
+      if (selectedTask) {
+        const updatedTaskTodos = selectedTask.todos.filter(todo => todo.id !== todoId);
+        setSelectedTask({
+          ...selectedTask,
+          todos: updatedTaskTodos
+        });
+      }
+      
+      // Refresh tasks to update todo counts
+      const tasksResponse = await getTasks();
+      setTasks(tasksResponse.data);
+      
+    } catch (error) {
+      console.error('Error deleting todo:', error);
+      throw error; // Re-throw to handle in component
+    }
+  };
+
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
@@ -157,6 +206,8 @@ const DashboardPage = () => {
             task={selectedTask}
             onBack={handleBackToTasks}
             onTodoAdded={handleTodoAddedToTask}
+            onTaskDeleted={handleDeleteTask}
+            onTodoDeleted={handleDeleteTodo}
           />
         ) : view === 'tasks' ? (
           <>
@@ -166,13 +217,14 @@ const DashboardPage = () => {
               tasks={tasks} 
               onTaskClick={handleTaskClick}
               onQuickAddTodo={handleQuickAddTodo}
+              onDeleteTask={handleDeleteTask}
             />
           </>
         ) : (
           <>
             <Typography variant="h4">Todos</Typography>
             <TodoForm onAddTodo={handleAddTodo} tasks={tasks} />
-            <TodoList todos={todos} onTodoUpdated={handleTodoUpdated} />
+            <TodoList todos={todos} onTodoUpdated={handleTodoUpdated} onDeleteTodo={handleDeleteTodo} />
           </>
         )}
       </Box>

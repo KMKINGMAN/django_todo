@@ -1,8 +1,14 @@
-import React from 'react';
-import { List, ListItem, ListItemText, Paper, Typography, Box, Checkbox, Chip } from '@mui/material';
+import React, { useState } from 'react';
+import { List, ListItem, ListItemText, Paper, Typography, Box, Checkbox, Chip, Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Alert, IconButton } from '@mui/material';
+import { Delete } from '@mui/icons-material';
 import { updateTodo } from '../services/api';
 
-const TodoList = ({ todos, onTodoUpdated }) => {
+const TodoList = ({ todos, onTodoUpdated, onDeleteTodo }) => {
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [todoToDelete, setTodoToDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+  const [error, setError] = useState('');
+
   const handleToggleComplete = async (todo) => {
     try {
       const updatedTodo = { ...todo, completed: !todo.completed };
@@ -15,6 +21,37 @@ const TodoList = ({ todos, onTodoUpdated }) => {
     } catch (error) {
       console.error('Error updating todo:', error);
     }
+  };
+
+  const handleDeleteClick = (todo, event) => {
+    event.stopPropagation();
+    setTodoToDelete(todo);
+    setDeleteDialogOpen(true);
+    setError('');
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!todoToDelete) return;
+    
+    setDeleting(true);
+    setError('');
+    
+    try {
+      await onDeleteTodo(todoToDelete.id);
+      setDeleteDialogOpen(false);
+      setTodoToDelete(null);
+    } catch (error) {
+      console.error('Error deleting todo:', error);
+      setError('Failed to delete todo. Please try again.');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteDialogOpen(false);
+    setTodoToDelete(null);
+    setError('');
   };
   if (todos.length === 0) {
     return (
@@ -64,6 +101,14 @@ const TodoList = ({ todos, onTodoUpdated }) => {
                         ))}
                       </>
                     )}
+                    <IconButton
+                      size="small"
+                      color="error"
+                      onClick={(e) => handleDeleteClick(todo, e)}
+                      sx={{ ml: 1 }}
+                    >
+                      <Delete fontSize="small" />
+                    </IconButton>
                   </Box>
                 </Box>
               }
@@ -89,6 +134,46 @@ const TodoList = ({ todos, onTodoUpdated }) => {
           </ListItem>
         ))}
       </List>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={handleDeleteCancel}
+        aria-labelledby="delete-todo-dialog-title"
+        aria-describedby="delete-todo-dialog-description"
+      >
+        <DialogTitle id="delete-todo-dialog-title">
+          Delete Todo
+        </DialogTitle>
+        <DialogContent>
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
+          <DialogContentText id="delete-todo-dialog-description">
+            Are you sure you want to delete "{todoToDelete?.title}"?
+            {todoToDelete?.task_title && (
+              <Box sx={{ mt: 1, color: 'info.main' }}>
+                This todo belongs to task: <strong>{todoToDelete.task_title}</strong>
+              </Box>
+            )}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDeleteCancel} disabled={deleting}>
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleDeleteConfirm} 
+            color="error" 
+            variant="contained"
+            disabled={deleting}
+          >
+            {deleting ? 'Deleting...' : 'Delete'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Paper>
   );
 };

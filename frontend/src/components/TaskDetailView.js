@@ -17,12 +17,13 @@ import {
   Chip,
   Stack,
   Divider,
-  Alert
+  Alert,
+  DialogContentText
 } from '@mui/material';
-import { ArrowBack, Add } from '@mui/icons-material';
-import { addTodo, updateTodo } from '../services/api';
+import { ArrowBack, Add, Delete } from '@mui/icons-material';
+import { addTodo, updateTodo, removeTodo, removeTask } from '../services/api';
 
-const TaskDetailView = ({ task, onBack, onTodoAdded }) => {
+const TaskDetailView = ({ task, onBack, onTodoAdded, onTaskDeleted, onTodoDeleted }) => {
   const [showAddTodo, setShowAddTodo] = useState(false);
   const [newTodoTitle, setNewTodoTitle] = useState('');
   const [newTodoDescription, setNewTodoDescription] = useState('');
@@ -30,6 +31,10 @@ const TaskDetailView = ({ task, onBack, onTodoAdded }) => {
   const [tagInput, setTagInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteType, setDeleteType] = useState(''); // 'task' or 'todo'
+  const [itemToDelete, setItemToDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   const handleAddTodo = async () => {
     if (!newTodoTitle.trim()) return;
@@ -92,6 +97,55 @@ const TaskDetailView = ({ task, onBack, onTodoAdded }) => {
     }
   };
 
+  const handleDeleteTask = () => {
+    setDeleteType('task');
+    setItemToDelete(task);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteTodo = (todo) => {
+    setDeleteType('todo');
+    setItemToDelete(todo);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!itemToDelete) return;
+    
+    setDeleting(true);
+    
+    try {
+      if (deleteType === 'task') {
+        await removeTask(itemToDelete.id);
+        if (onTaskDeleted) {
+          onTaskDeleted(itemToDelete.id);
+        }
+        onBack(); // Go back to tasks view
+      } else if (deleteType === 'todo') {
+        await removeTodo(itemToDelete.id);
+        if (onTodoDeleted) {
+          onTodoDeleted(itemToDelete.id);
+        }
+      }
+      
+      setDeleteDialogOpen(false);
+      setItemToDelete(null);
+      setDeleteType('');
+      
+    } catch (error) {
+      console.error('Error deleting item:', error);
+      // Could add error handling here
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteDialogOpen(false);
+    setItemToDelete(null);
+    setDeleteType('');
+  };
+
   return (
     <Box>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
@@ -101,6 +155,15 @@ const TaskDetailView = ({ task, onBack, onTodoAdded }) => {
         <Typography variant="h4" sx={{ flexGrow: 1 }}>
           {task.title}
         </Typography>
+        <Button
+          variant="outlined"
+          color="error"
+          startIcon={<Delete />}
+          onClick={handleDeleteTask}
+          sx={{ mr: 1 }}
+        >
+          Delete Task
+        </Button>
         <Button
           variant="contained"
           startIcon={<Add />}
@@ -133,14 +196,23 @@ const TaskDetailView = ({ task, onBack, onTodoAdded }) => {
                   />
                   <ListItemText
                     primary={
-                      <Typography
-                        sx={{
-                          textDecoration: todo.completed ? 'line-through' : 'none',
-                          color: todo.completed ? 'text.secondary' : 'text.primary'
-                        }}
-                      >
-                        {todo.title}
-                      </Typography>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Typography
+                          sx={{
+                            textDecoration: todo.completed ? 'line-through' : 'none',
+                            color: todo.completed ? 'text.secondary' : 'text.primary'
+                          }}
+                        >
+                          {todo.title}
+                        </Typography>
+                        <IconButton
+                          size="small"
+                          color="error"
+                          onClick={() => handleDeleteTodo(todo)}
+                        >
+                          <Delete fontSize="small" />
+                        </IconButton>
+                      </Box>
                     }
                     secondary={
                       <Box>
@@ -251,6 +323,49 @@ const TaskDetailView = ({ task, onBack, onTodoAdded }) => {
             disabled={loading || !newTodoTitle.trim()}
           >
             {loading ? 'Adding...' : 'Add Todo'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={handleDeleteCancel}
+        aria-labelledby="delete-dialog-title"
+        aria-describedby="delete-dialog-description"
+      >
+        <DialogTitle id="delete-dialog-title">
+          Delete {deleteType === 'task' ? 'Task' : 'Todo'}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="delete-dialog-description">
+            {deleteType === 'task' ? (
+              <>
+                Are you sure you want to delete the task "{itemToDelete?.title}"?
+                {task.todos && task.todos.length > 0 && (
+                  <Box sx={{ mt: 1, color: 'warning.main' }}>
+                    <strong>Warning:</strong> This will also delete {task.todos.length} todo(s) associated with this task.
+                  </Box>
+                )}
+              </>
+            ) : (
+              <>
+                Are you sure you want to delete the todo "{itemToDelete?.title}"?
+              </>
+            )}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDeleteCancel} disabled={deleting}>
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleDeleteConfirm} 
+            color="error" 
+            variant="contained"
+            disabled={deleting}
+          >
+            {deleting ? 'Deleting...' : 'Delete'}
           </Button>
         </DialogActions>
       </Dialog>
