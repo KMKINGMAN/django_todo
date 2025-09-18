@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TextField, Button, Container, Typography, Box, Alert } from '@mui/material';
 import { login } from '../services/api';
@@ -10,6 +10,14 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    // Check if user is already logged in
+    const token = localStorage.getItem('token');
+    if (token) {
+      navigate('/dashboard');
+    }
+  }, [navigate]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -18,6 +26,7 @@ const LoginPage = () => {
     try {
       const response = await login(username, password);
       localStorage.setItem('token', response.data.token);
+      localStorage.setItem('username', response.data.username || username);
       navigate('/dashboard');
     } catch (error) {
       console.error('Login failed', error);

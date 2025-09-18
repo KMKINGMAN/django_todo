@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Typography, Box, CssBaseline, AppBar, Toolbar, CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
+import { Typography, Box, CssBaseline, AppBar, Toolbar, CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions, Button, IconButton } from '@mui/material';
+import { Logout } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import TaskForm from '../components/TaskForm';
 import TaskList from '../components/TaskList';
 import TodoForm from '../components/TodoForm';
 import TodoList from '../components/TodoList';
 import TaskDetailView from '../components/TaskDetailView';
-import { getTasks, getTodos, addTask, addTodo, removeTask, removeTodo } from '../services/api';
+import { getTasks, getTodos, addTask, addTodo, removeTask, removeTodo, logout } from '../services/api';
 
 const DashboardPage = () => {
+  const navigate = useNavigate();
   const [tasks, setTasks] = useState([]);
   const [todos, setTodos] = useState([]);
   const [view, setView] = useState('tasks'); // 'tasks' or 'todos'
@@ -16,10 +19,29 @@ const DashboardPage = () => {
   const [selectedTask, setSelectedTask] = useState(null);
   const [showQuickTodoDialog, setShowQuickTodoDialog] = useState(false);
   const [quickTodoTask, setQuickTodoTask] = useState(null);
+  const [username, setUsername] = useState('');
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   useEffect(() => {
+    // Check if user is authenticated
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+    
+    // Get username from localStorage
+    const storedUsername = localStorage.getItem('username');
+    if (storedUsername) {
+      setUsername(storedUsername);
+    }
+    
     fetchData();
-  }, []);
+  }, [navigate]);
 
   const fetchData = async () => {
     try {
@@ -192,9 +214,26 @@ const DashboardPage = () => {
       <CssBaseline />
       <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
         <Toolbar>
-          <Typography variant="h6" noWrap component="div">
+          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
             Task Management
           </Typography>
+          {username && (
+            <Typography variant="body1" sx={{ mr: 2 }}>
+              Welcome, {username}
+            </Typography>
+          )}
+          <IconButton
+            color="inherit"
+            onClick={handleLogout}
+            title="Logout"
+            sx={{ 
+              '&:hover': { 
+                backgroundColor: 'rgba(255, 255, 255, 0.1)' 
+              } 
+            }}
+          >
+            <Logout />
+          </IconButton>
         </Toolbar>
       </AppBar>
       <Sidebar setView={setView} />
