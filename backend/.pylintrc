@@ -1,0 +1,14 @@
+[MASTER]
+ignore=venv,migrations
+ignore-patterns=test_.*\.py,conftest\.py,factories\.py
+
+[MESSAGES CONTROL]
+disable=import-error,unused-import,unused-variable,unused-argument,redefined-outer-name,too-many-locals,too-many-ancestors,no-member,missing-module-docstring,missing-class-docstring,missing-function-docstring,too-few-public-methods,line-too-long,trailing-whitespace,trailing-newlines,missing-final-newline,fixme
+
+[FORMAT]
+max-line-length=120
+
+[DESIGN]
+max-args=10
+max-locals=20
+max-attributes=15
