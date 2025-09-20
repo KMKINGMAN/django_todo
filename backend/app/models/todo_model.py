@@ -4,7 +4,7 @@ Todo application model.
 This module contains the Django model definitions for the Todo application.
 """
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User #pylint: disable=imported-auth-user
 from django.db import models
 
 
@@ -54,7 +54,7 @@ class Todo(models.Model):
         default=get_default_tags
     )
 
-    class Meta:  # pylint: disable=too-few-public-methods
+    class Meta:
         """Meta options for Todo model."""
         ordering = ['-created_at']
         verbose_name = 'Todo'
@@ -63,7 +63,7 @@ class Todo(models.Model):
     def __str__(self):
         """Return string representation of Todo."""
         if self.title and len(self.title) > 50:
-            return f"{self.title[:50]}..."  # pylint: disable=unsubscriptable-object
+            return f"{self.title[:50]}..."
         return self.title or ""
 
     def __repr__(self):

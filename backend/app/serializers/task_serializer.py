@@ -8,7 +8,7 @@ from ..models import Task, Todo
 class TaskTodoSerializer(serializers.ModelSerializer):
     """Simplified serializer for todos within tasks to avoid circular imports."""
 
-    class Meta:  # pylint: disable=too-few-public-methods
+    class Meta:
         """Meta configuration for TaskTodoSerializer."""
         model = Todo
         fields = [
@@ -28,7 +28,7 @@ class TaskSerializer(serializers.ModelSerializer):
     todos_count = serializers.SerializerMethodField()
     user = serializers.StringRelatedField(read_only=True)
 
-    class Meta:  # pylint: disable=too-few-public-methods
+    class Meta:
         """Meta configuration for TaskSerializer."""
         model = Task
         fields = [
@@ -82,7 +82,7 @@ class TaskSerializer(serializers.ModelSerializer):
             if todo_id:
                 # Update existing todo
                 try:
-                    todo = Todo.objects.get(  # pylint: disable=no-member
+                    todo = Todo.objects.get(
                         id=todo_id, user=self.context['request'].user)
                     for field, value in todo_data.items():
                         if field != 'id':
@@ -90,12 +90,12 @@ class TaskSerializer(serializers.ModelSerializer):
                     todo.save()
                     if todo not in instance.todos.all():
                         instance.todos.add(todo)
-                except Todo.DoesNotExist:  # pylint: disable=no-member
+                except Todo.DoesNotExist:
                     # Skip if todo doesn't exist or doesn't belong to user
                     continue
             else:
                 # Create new todo
-                todo = Todo.objects.create(  # pylint: disable=no-member
+                todo = Todo.objects.create(
                     **{k: v for k, v in todo_data.items() if k != 'id'})
                 todo.user.add(self.context['request'].user)
                 instance.todos.add(todo)

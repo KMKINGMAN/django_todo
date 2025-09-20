@@ -9,7 +9,7 @@ class TodoSerializer(serializers.ModelSerializer):
     """Serializer for Todo model with user association and tags support."""
     user = serializers.StringRelatedField(read_only=True)
     task = serializers.PrimaryKeyRelatedField(
-        queryset=Task.objects.all(),  # pylint: disable=no-member
+        queryset=Task.objects.all(),
         required=False,
         allow_null=True
     )
@@ -19,7 +19,7 @@ class TodoSerializer(serializers.ModelSerializer):
         required=False
     )
 
-    class Meta:  # pylint: disable=too-few-public-methods
+    class Meta:
         """Meta configuration for TodoSerializer."""
         model = Todo
         fields = [
