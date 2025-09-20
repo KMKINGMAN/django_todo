@@ -320,5 +320,3 @@ int-import-graph =
 
 [EXCEPTIONS]
 overgeneral-exceptions = builtins.Exception
-
-# 79853056a08a5009db4a6e9a8ca00c194036ac5a
