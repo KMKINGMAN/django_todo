@@ -34,7 +34,10 @@ class TestTaskAPI:
 
     def test_create_task(self, authenticated_client, user):
         """Test creating a new task."""
-        task_data = {"title": "Test Task", "description": "Test Task Description"}
+        task_data = {
+            "title": "Test Task",
+            "description": "Test Task Description"
+        }
 
         url = reverse("task-list")
         response = authenticated_client.post(url, task_data, format="json")
@@ -44,7 +47,8 @@ class TestTaskAPI:
         assert response.data["description"] == task_data["description"]
         assert "todos_count" in response.data
         assert response.data["todos_count"] == 0
-        # Note: 'todos' field is not included by default, only with include_todos=1
+        # Note: 'todos' field is not included by default, only with
+        # include_todos=1
 
         # Verify task was created in database
         task = Task.objects.get(id=response.data["id"])
@@ -78,7 +82,9 @@ class TestTaskAPI:
     def test_list_user_tasks_only(self, authenticated_client, user):
         """Test that users only see their own tasks."""
         # Create another user and their task
-        other_user = User.objects.create_user(username="otheruser", password="pass123")
+        other_user = User.objects.create_user(
+            username="otheruser", password="pass123"
+        )
         Task.objects.create(title="Other User Task", user=other_user)
 
         # Create task for authenticated user
@@ -94,7 +100,9 @@ class TestTaskAPI:
     def test_retrieve_task(self, authenticated_client, user):
         """Test retrieving a specific task."""
         task = Task.objects.create(
-            title="Specific Task", description="Specific Description", user=user
+            title="Specific Task",
+            description="Specific Description",
+            user=user
         )
 
         url = reverse("task-detail", kwargs={"pk": task.id})
@@ -110,8 +118,8 @@ class TestTaskAPI:
         task = Task.objects.create(title="Task with Todos", user=user)
 
         # Create todos associated with this task
-        _todo1 = Todo.objects.create(title="Todo 1", task=task, user=user)
-        _todo2 = Todo.objects.create(title="Todo 2", task=task, user=user)
+        Todo.objects.create(title="Todo 1", task=task, user=user)
+        Todo.objects.create(title="Todo 2", task=task, user=user)
 
         # Test with include_todos=1 to get the todos in response
         url = reverse("task-detail", kwargs={"pk": task.id})
@@ -127,8 +135,12 @@ class TestTaskAPI:
 
     def test_retrieve_other_user_task_forbidden(self, authenticated_client):
         """Test that users cannot retrieve other users' tasks."""
-        other_user = User.objects.create_user(username="otheruser", password="pass123")
-        other_task = Task.objects.create(title="Other User Task", user=other_user)
+        other_user = User.objects.create_user(
+            username="otheruser", password="pass123"
+        )
+        other_task = Task.objects.create(
+            title="Other User Task", user=other_user
+        )
 
         url = reverse("task-detail", kwargs={"pk": other_task.id})
         response = authenticated_client.get(url)
@@ -138,10 +150,15 @@ class TestTaskAPI:
     def test_update_task(self, authenticated_client, user):
         """Test updating a task."""
         task = Task.objects.create(
-            title="Original Title", description="Original Description", user=user
+            title="Original Title",
+            description="Original Description",
+            user=user
         )
 
-        update_data = {"title": "Updated Title", "description": "Updated Description"}
+        update_data = {
+            "title": "Updated Title",
+            "description": "Updated Description"
+        }
 
         url = reverse("task-detail", kwargs={"pk": task.id})
         response = authenticated_client.put(url, update_data, format="json")
@@ -158,7 +175,9 @@ class TestTaskAPI:
     def test_partial_update_task(self, authenticated_client, user):
         """Test partially updating a task."""
         task = Task.objects.create(
-            title="Original Title", description="Original Description", user=user
+            title="Original Title",
+            description="Original Description",
+            user=user
         )
 
         update_data = {"title": "Updated Title Only"}
@@ -168,7 +187,7 @@ class TestTaskAPI:
 
         assert response.status_code == status.HTTP_200_OK
         assert response.data["title"] == update_data["title"]
-        assert response.data["description"] == "Original Description"  # Unchanged
+        assert response.data["description"] == "Original Description"
 
     def test_delete_task_without_todos(self, authenticated_client, user):
         """Test deleting a task that has no associated todos."""
@@ -204,8 +223,12 @@ class TestTaskAPI:
 
     def test_delete_other_user_task_forbidden(self, authenticated_client):
         """Test that users cannot delete other users' tasks."""
-        other_user = User.objects.create_user(username="otheruser", password="pass123")
-        other_task = Task.objects.create(title="Other User Task", user=other_user)
+        other_user = User.objects.create_user(
+            username="otheruser", password="pass123"
+        )
+        other_task = Task.objects.create(
+            title="Other User Task", user=other_user
+        )
 
         url = reverse("task-detail", kwargs={"pk": other_task.id})
         response = authenticated_client.delete(url)
@@ -215,10 +238,14 @@ class TestTaskAPI:
         # Verify task was not deleted
         assert Task.objects.filter(id=other_task.id).exists()
 
-    def test_superuser_can_see_all_tasks(self, authenticated_superuser_client, user):
+    def test_superuser_can_see_all_tasks(
+        self, authenticated_superuser_client, user
+    ):
         """Test that superuser can see all tasks from all users."""
         # Create tasks for different users
-        other_user = User.objects.create_user(username="otheruser", password="pass123")
+        other_user = User.objects.create_user(
+            username="otheruser", password="pass123"
+        )
 
         Task.objects.create(title="User Task", user=user)
         Task.objects.create(title="Other User Task", user=other_user)
@@ -237,9 +264,9 @@ class TestTaskAPI:
     def test_task_ordering(self, authenticated_client, user):
         """Test that tasks are ordered by creation date (newest first)."""
         # Create tasks in sequence
-        _task1 = Task.objects.create(title="First Task", user=user)
-        _task2 = Task.objects.create(title="Second Task", user=user)
-        _task3 = Task.objects.create(title="Third Task", user=user)
+        Task.objects.create(title="First Task", user=user)
+        Task.objects.create(title="Second Task", user=user)
+        Task.objects.create(title="Third Task", user=user)
 
         url = reverse("task-list")
         response = authenticated_client.get(url)
@@ -255,14 +282,20 @@ class TestTaskAPI:
     def test_delete_task_mixed_user_todos(self, authenticated_client, user):
         """Test deleting task behavior with todos from multiple users."""
         # Create another user
-        other_user = User.objects.create_user(username="otheruser", password="pass123")
+        other_user = User.objects.create_user(
+            username="otheruser", password="pass123"
+        )
 
         # Create a task owned by the authenticated user
         task = Task.objects.create(title="Shared Task", user=user)
 
         # Create todos: one owned by authenticated user, one by other user
-        user_todo = Todo.objects.create(title="User Todo", task=task, user=user)
-        other_todo = Todo.objects.create(title="Other Todo", task=task, user=other_user)
+        user_todo = Todo.objects.create(
+            title="User Todo", task=task, user=user
+        )
+        other_todo = Todo.objects.create(
+            title="Other Todo", task=task, user=other_user
+        )
 
         url = reverse("task-detail", kwargs={"pk": task.id})
         response = authenticated_client.delete(url)

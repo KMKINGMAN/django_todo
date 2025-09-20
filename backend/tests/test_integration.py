@@ -20,10 +20,14 @@ from app.models import Todo, Task
 
 def _login_and_authenticate(api_client, username, password):
     """Create a user with credentials, log in, and set token on client."""
-    user = User.objects.create_user(username=username, password=password)
+    user = User.objects.create_user(
+        username=username, password=password
+    )
     login_url = reverse("api_login")
     resp = api_client.post(
-        login_url, {"username": username, "password": password}, format="json"
+        login_url,
+        {"username": username, "password": password},
+        format="json",
     )
     assert resp.status_code == status.HTTP_200_OK
     token = resp.data["token"]
@@ -64,10 +68,14 @@ class TestTodoApplicationWorkflow:
         """Test a complete user workflow from registration to task completion."""
 
         # Login and auth
-        _user = _login_and_authenticate(api_client, "workflowuser", "workflow123")
+        _login_and_authenticate(api_client, "workflowuser", "workflow123")
 
         # Create a task
-        task = _create_task(api_client, "Personal Project", "Build a todo app with Django and React")
+        task = _create_task(
+            api_client,
+            "Personal Project",
+            "Build a todo app with Django and React",
+        )
         task_id = task["id"]
 
         # Create multiple todos for the task
