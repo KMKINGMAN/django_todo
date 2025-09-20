@@ -38,7 +38,7 @@ class TestAuthenticationAPI:
         assert response.data["username"] == user.username
 
         # Verify token was created
-        token = Token.objects.get(user=user) # pylint: disable=no-member
+        token = Token.objects.get(user=user)
         assert response.data["token"] == token.key
 
     def test_login_with_invalid_credentials(self, api_client):
@@ -117,7 +117,7 @@ class TestAuthenticationAPI:
         user = User.objects.create_user(username="testuser", password="testpass123")
 
         # Create an existing token
-        existing_token = Token.objects.create(user=user) # pylint: disable=no-member
+        existing_token = Token.objects.create(user=user)
 
         # Login data
         login_data = {"username": "testuser", "password": "testpass123"}
@@ -131,4 +131,4 @@ class TestAuthenticationAPI:
         assert response.data["token"] == existing_token.key
 
         # Verify only one token exists for the user
-        assert Token.objects.filter(user=user).count() == 1 # pylint: disable=no-member
+        assert Token.objects.filter(user=user).count() == 1

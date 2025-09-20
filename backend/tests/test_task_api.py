@@ -4,12 +4,7 @@ API tests for Task endpoints.
 This module contains comprehensive tests for the Task API endpoints
 including CRUD operations, authentication, and user permission checks.
 
-We disable some pylint checks in this test module:
-- E1101: false positives for Django model managers (e.g. `Model.objects`)
-- E0401: import-error for pytest in test environment
 """
-
-# pylint: disable=E1101,E0401
 
 import pytest
 from django.contrib.auth.models import User

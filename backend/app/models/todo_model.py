@@ -4,7 +4,7 @@ Todo application model.
 This module contains the Django model definitions for the Todo application.
 """
 
-from django.contrib.auth.models import User #pylint: disable=imported-auth-user
+from django.contrib.auth.models import User
 from django.db import models
 
 

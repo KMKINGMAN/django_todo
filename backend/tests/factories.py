@@ -4,10 +4,7 @@ Factory classes for creating test data.
 This module provides factory classes for creating test instances
 of models used in the Todo application testing.
 """
-
-# pylint: disable=R0903  # Factory classes have minimal methods by design
-
-import factory  # pylint: disable=import-error
+import factory
 
 from django.contrib.auth.models import User
 from app.models import Todo, Task
@@ -16,7 +13,7 @@ from app.models import Todo, Task
 class UserFactory(factory.django.DjangoModelFactory):
     """Factory for creating User instances for testing."""
 
-    class Meta: # pylint: disable=missing-class-docstring, too-few-public-methods
+    class Meta:
         model = User
 
     username = factory.Sequence(lambda n: f"user{n}")
@@ -39,7 +36,7 @@ class SuperUserFactory(UserFactory):
 class TaskFactory(factory.django.DjangoModelFactory):
     """Factory for creating Task instances for testing."""
 
-    class Meta: # pylint: disable=too-few-public-methods,too-many-public-methods,missing-class-docstring
+    class Meta:
         model = Task
 
     title = factory.Faker("sentence", nb_words=3)
@@ -50,7 +47,7 @@ class TaskFactory(factory.django.DjangoModelFactory):
 class TodoFactory(factory.django.DjangoModelFactory):
     """Factory for creating Todo instances for testing."""
 
-    class Meta: #pylint: disable=missing-class-docstring,too-few-public-methods
+    class Meta:
         model = Todo
 
     title = factory.Faker("sentence", nb_words=4)
