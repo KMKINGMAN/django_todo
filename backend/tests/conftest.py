@@ -5,7 +5,7 @@ This module contains pytest fixtures and configurations
 that are shared across all test modules.
 """
 
-import pytest  # pylint: disable=import-error
+import pytest
 from django.contrib.auth.models import User
 from django.test import Client
 from rest_framework.authtoken.models import Token
@@ -43,7 +43,7 @@ def superuser(db): #pylint: disable=unused-argument
 @pytest.fixture
 def user_token(user): #pylint: disable=redefined-outer-name
     """Create an authentication token for the test user."""
-    (token, _) = Token.objects.get_or_create(user=user)  # pylint: disable=no-member,unused-variable
+    (token, _) = Token.objects.get_or_create(user=user)
     return token
 
 
@@ -57,7 +57,7 @@ def authenticated_client(api_client, user_token):  # pylint: disable=redefined-o
 @pytest.fixture
 def superuser_token(superuser): # pylint: disable=redefined-outer-name
     """Create an authentication token for the test superuser."""
-    token, _ = Token.objects.get_or_create(user=superuser)  # pylint: disable=no-member
+    token, _ = Token.objects.get_or_create(user=superuser)
     return token
 
 

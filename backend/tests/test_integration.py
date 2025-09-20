@@ -10,8 +10,6 @@ We disable some pylint checks in this test module:
 - E0401: import-error for pytest in test environment
 """
 
-# pylint: disable=E1101,R0914,E0401
-
 import pytest
 from django.contrib.auth.models import User
 from django.urls import reverse
@@ -34,6 +32,7 @@ def _login_and_authenticate(api_client, username, password):
 
 
 def _create_task(api_client, title, description=None):
+    """Helper function to create a task via API."""
     data = {"title": title}
     if description is not None:
         data["description"] = description
@@ -43,6 +42,7 @@ def _create_task(api_client, title, description=None):
 
 
 def _create_todo(api_client, title, task=None, description=None, tags=None):
+    """Helper function to create a todo via API."""
     data = {"title": title}
     if task is not None:
         data["task"] = task

@@ -291,6 +291,8 @@ disable =
 	django-not-configured,
 	consider-using-with,
 	bad-option-value,
+	imported-auth-user,
+	import-error,
 
 [REPORTS]
 output-format = text

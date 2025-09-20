@@ -4,13 +4,7 @@ Model tests for Todo and Task models.
 This module contains unit tests for the Todo and Task models
 including validation, relationships, and model methods.
 
-We disable some pylint checks in this test module:
-- E1101: false positives for Django model managers (e.g. `Model.objects`)
-- E0401: import-error for pytest in test environment
-- W0511: ignore TODO/FIXME comments in tests
 """
-
-# pylint: disable=E1101,E0401,W0511
 
 import pytest
 from django.contrib.auth.models import User
