@@ -5,7 +5,7 @@ This module contains pytest fixtures and configurations
 that are shared across all test modules.
 """
 
-import pytest
+import pytest  # pylint: disable=import-error
 from django.contrib.auth.models import User
 from django.test import Client
 from rest_framework.authtoken.models import Token
@@ -25,48 +25,44 @@ def api_client():
 
 
 @pytest.fixture
-def user(db):
+def user(db): #pylint: disable=unused-argument
     """Create a test user."""
     return User.objects.create_user(
-        username="testuser",
-        email="test@example.com",
-        password="testpass123"
+        username="testuser", email="test@example.com", password="testpass123"
     )
 
 
 @pytest.fixture
-def superuser(db):
+def superuser(db): #pylint: disable=unused-argument
     """Create a test superuser."""
     return User.objects.create_superuser(
-        username="admin",
-        email="admin@example.com",
-        password="adminpass123"
+        username="admin", email="admin@example.com", password="adminpass123"
     )
 
 
 @pytest.fixture
-def user_token(user):
+def user_token(user): #pylint: disable=redefined-outer-name
     """Create an authentication token for the test user."""
-    token, created = Token.objects.get_or_create(user=user)
+    (token, _) = Token.objects.get_or_create(user=user)  # pylint: disable=no-member,unused-variable
     return token
 
 
 @pytest.fixture
-def authenticated_client(api_client, user_token):
+def authenticated_client(api_client, user_token):  # pylint: disable=redefined-outer-name
     """Provide an authenticated API client."""
-    api_client.credentials(HTTP_AUTHORIZATION=f'Token {user_token.key}')
+    api_client.credentials(HTTP_AUTHORIZATION=f"Token {user_token.key}")
     return api_client
 
 
 @pytest.fixture
-def superuser_token(superuser):
+def superuser_token(superuser): # pylint: disable=redefined-outer-name
     """Create an authentication token for the test superuser."""
-    token, created = Token.objects.get_or_create(user=superuser)
+    token, _ = Token.objects.get_or_create(user=superuser)  # pylint: disable=no-member
     return token
 
 
 @pytest.fixture
-def authenticated_superuser_client(api_client, superuser_token):
+def authenticated_superuser_client(api_client, superuser_token):  # pylint: disable=redefined-outer-name
     """Provide an authenticated superuser API client."""
-    api_client.credentials(HTTP_AUTHORIZATION=f'Token {superuser_token.key}')
+    api_client.credentials(HTTP_AUTHORIZATION=f"Token {superuser_token.key}")
     return api_client
