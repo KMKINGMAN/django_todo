@@ -5,17 +5,20 @@ This module provides factory classes for creating test instances
 of models used in the Todo application testing.
 """
 
-import factory
+# pylint: disable=R0903  # Factory classes have minimal methods by design
+
+import factory  # pylint: disable=import-error
+
 from django.contrib.auth.models import User
 from app.models import Todo, Task
 
 
 class UserFactory(factory.django.DjangoModelFactory):
     """Factory for creating User instances for testing."""
-    
-    class Meta:
+
+    class Meta: # pylint: disable=missing-class-docstring, too-few-public-methods
         model = User
-    
+
     username = factory.Sequence(lambda n: f"user{n}")
     email = factory.LazyAttribute(lambda obj: f"{obj.username}@example.com")
     first_name = factory.Faker("first_name")
@@ -27,7 +30,7 @@ class UserFactory(factory.django.DjangoModelFactory):
 
 class SuperUserFactory(UserFactory):
     """Factory for creating superuser instances for testing."""
-    
+
     is_staff = True
     is_superuser = True
     username = factory.Sequence(lambda n: f"admin{n}")
@@ -35,10 +38,10 @@ class SuperUserFactory(UserFactory):
 
 class TaskFactory(factory.django.DjangoModelFactory):
     """Factory for creating Task instances for testing."""
-    
-    class Meta:
+
+    class Meta: # pylint: disable=too-few-public-methods,too-many-public-methods,missing-class-docstring
         model = Task
-    
+
     title = factory.Faker("sentence", nb_words=3)
     description = factory.Faker("paragraph", nb_sentences=2)
     user = factory.SubFactory(UserFactory)
@@ -46,10 +49,10 @@ class TaskFactory(factory.django.DjangoModelFactory):
 
 class TodoFactory(factory.django.DjangoModelFactory):
     """Factory for creating Todo instances for testing."""
-    
-    class Meta:
+
+    class Meta: #pylint: disable=missing-class-docstring,too-few-public-methods
         model = Todo
-    
+
     title = factory.Faker("sentence", nb_words=4)
     description = factory.Faker("paragraph", nb_sentences=1)
     completed = False
@@ -60,13 +63,13 @@ class TodoFactory(factory.django.DjangoModelFactory):
 
 class TodoWithoutTaskFactory(TodoFactory):
     """Factory for creating Todo instances without associated Task."""
-    
+
     task = None
     tags = factory.LazyFunction(lambda: ["standalone", "todo"])
 
 
 class CompletedTodoFactory(TodoFactory):
     """Factory for creating completed Todo instances."""
-    
+
     completed = True
     tags = factory.LazyFunction(lambda: ["completed", "done"])
