@@ -68,8 +68,8 @@ class Todo(models.Model):
 
     def __repr__(self):
         """Return detailed string representation for debugging."""
-        username = getattr(self.user, 'username', 'None') if self.user else 'None'
+        username = self.user.username if self.user else None
         return (
-            f"Todo(id={getattr(self, 'id', 'None')}, title='{self.title}', "
+            f"Todo(id={self.id}, title='{self.title}', "
             f"completed={self.completed}, user={username})"
         )
