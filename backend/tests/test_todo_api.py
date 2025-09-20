@@ -59,7 +59,9 @@ class TestTodoAPI:
         """Test creating a todo and associating it with a task."""
         # Create a task first
         task = Task.objects.create(
-            title="Test Task", description="Test Task Description", user=user
+            title="Test Task",
+            description="Test Task Description",
+            user=user
         )
 
         todo_data = {
@@ -110,7 +112,9 @@ class TestTodoAPI:
     def test_list_user_todos_only(self, authenticated_client, user):
         """Test that users only see their own todos."""
         # Create another user and their todo
-        other_user = User.objects.create_user(username="otheruser", password="pass123")
+        other_user = User.objects.create_user(
+            username="otheruser", password="pass123"
+        )
         Todo.objects.create(title="Other User Todo", user=other_user)
 
         # Create todo for authenticated user
@@ -126,7 +130,9 @@ class TestTodoAPI:
     def test_retrieve_todo(self, authenticated_client, user):
         """Test retrieving a specific todo."""
         todo = Todo.objects.create(
-            title="Specific Todo", description="Specific Description", user=user
+            title="Specific Todo",
+            description="Specific Description",
+            user=user
         )
 
         url = reverse("todo-detail", kwargs={"pk": todo.id})
@@ -139,8 +145,12 @@ class TestTodoAPI:
 
     def test_retrieve_other_user_todo_forbidden(self, authenticated_client):
         """Test that users cannot retrieve other users' todos."""
-        other_user = User.objects.create_user(username="otheruser", password="pass123")
-        other_todo = Todo.objects.create(title="Other User Todo", user=other_user)
+        other_user = User.objects.create_user(
+            username="otheruser", password="pass123"
+        )
+        other_todo = Todo.objects.create(
+            title="Other User Todo", user=other_user
+        )
 
         url = reverse("todo-detail", kwargs={"pk": other_todo.id})
         response = authenticated_client.get(url)
@@ -150,7 +160,9 @@ class TestTodoAPI:
     def test_update_todo(self, authenticated_client, user):
         """Test updating a todo."""
         todo = Todo.objects.create(
-            title="Original Title", description="Original Description", user=user
+            title="Original Title",
+            description="Original Description",
+            user=user
         )
 
         update_data = {
@@ -190,8 +202,8 @@ class TestTodoAPI:
 
         assert response.status_code == status.HTTP_200_OK
         assert response.data["completed"] is True
-        assert response.data["title"] == "Original Title"  # Unchanged
-        assert response.data["description"] == "Original Description"  # Unchanged
+        assert response.data["title"] == "Original Title"
+        assert response.data["description"] == "Original Description"
 
     def test_delete_todo(self, authenticated_client, user):
         """Test deleting a todo."""
@@ -207,8 +219,12 @@ class TestTodoAPI:
 
     def test_delete_other_user_todo_forbidden(self, authenticated_client):
         """Test that users cannot delete other users' todos."""
-        other_user = User.objects.create_user(username="otheruser", password="pass123")
-        other_todo = Todo.objects.create(title="Other User Todo", user=other_user)
+        other_user = User.objects.create_user(
+            username="otheruser", password="pass123"
+        )
+        other_todo = Todo.objects.create(
+            title="Other User Todo", user=other_user
+        )
 
         url = reverse("todo-detail", kwargs={"pk": other_todo.id})
         response = authenticated_client.delete(url)
@@ -218,10 +234,14 @@ class TestTodoAPI:
         # Verify todo was not deleted
         assert Todo.objects.filter(id=other_todo.id).exists()
 
-    def test_superuser_can_see_all_todos(self, authenticated_superuser_client, user):
+    def test_superuser_can_see_all_todos(
+        self, authenticated_superuser_client, user
+    ):
         """Test that superuser can see all todos from all users."""
         # Create todos for different users
-        other_user = User.objects.create_user(username="otheruser", password="pass123")
+        other_user = User.objects.create_user(
+            username="otheruser", password="pass123"
+        )
 
         Todo.objects.create(title="User Todo", user=user)
         Todo.objects.create(title="Other User Todo", user=other_user)
@@ -240,9 +260,9 @@ class TestTodoAPI:
     def test_todo_ordering(self, authenticated_client, user):
         """Test that todos are ordered by creation date (newest first)."""
         # Create todos in sequence
-        _todo1 = Todo.objects.create(title="First Todo", user=user)
-        _todo2 = Todo.objects.create(title="Second Todo", user=user)
-        _todo3 = Todo.objects.create(title="Third Todo", user=user)
+        Todo.objects.create(title="First Todo", user=user)
+        Todo.objects.create(title="Second Todo", user=user)
+        Todo.objects.create(title="Third Todo", user=user)
 
         url = reverse("todo-list")
         response = authenticated_client.get(url)

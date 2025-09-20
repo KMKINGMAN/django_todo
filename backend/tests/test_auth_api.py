@@ -20,7 +20,9 @@ class TestAuthenticationAPI:
     def test_login_with_valid_credentials(self, api_client):
         """Test successful login with valid credentials."""
         # Create a test user
-        user = User.objects.create_user(username="testuser", password="testpass123")
+        user = User.objects.create_user(
+            username="testuser", password="testpass123"
+        )
 
         # Login data
         login_data = {"username": "testuser", "password": "testpass123"}
@@ -114,7 +116,9 @@ class TestAuthenticationAPI:
     def test_existing_token_reused_on_login(self, api_client):
         """Test that existing token is reused when user logs in again."""
         # Create a test user
-        user = User.objects.create_user(username="testuser", password="testpass123")
+        user = User.objects.create_user(
+            username="testuser", password="testpass123"
+        )
 
         # Create an existing token
         existing_token = Token.objects.create(user=user)
