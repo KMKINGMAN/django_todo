@@ -35,7 +35,7 @@ class LoginView(APIView):
         if username and password:
             user = authenticate(username=username, password=password)
             if user:
-                token, _ = Token.objects.get_or_create(user=user)  # pylint: disable=no-member
+                token, _ = Token.objects.get_or_create(user=user)
                 return Response({
                     'token': token.key,
                     'user_id': user.id,

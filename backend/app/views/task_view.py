@@ -20,9 +20,9 @@ class TaskViewSet(viewsets.ModelViewSet):  # pylint: disable=too-many-ancestors
     def get_queryset(self):
         """Return tasks filtered by current user or all for superuser."""
         if self.request.user.is_superuser:
-            return Task.objects.prefetch_related(  # pylint: disable=no-member
+            return Task.objects.prefetch_related(
                 'todos').all().order_by('-created_at')
-        return Task.objects.filter(user=self.request.user).prefetch_related(  # pylint: disable=no-member
+        return Task.objects.filter(user=self.request.user).prefetch_related(
             'todos').order_by('-created_at')
 
     def perform_create(self, serializer):
