@@ -46,5 +46,5 @@ class Task(models.Model):
         """Return detailed string representation for debugging."""
         return (
             f"Task(id={self.id}, title='{self.title}', "
-            f"user={getattr(self.user, 'username', 'None') if self.user else 'None'})"
+            f"user={self.user.username if self.user else None})"
         )
