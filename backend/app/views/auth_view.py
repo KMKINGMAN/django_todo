@@ -1,7 +1,8 @@
 """
 Authentication views for the Todo application.
 
-This module contains Django REST Framework views for authentication functionality
+This module contains Django REST Framework views
+for authentication functionality
 including login and token management.
 """
 
@@ -22,10 +23,8 @@ class LoginView(APIView):
     def post(self, request):
         """
         Handle POST request for user login.
-        
         Args:
             request: HTTP request containing username and password
-            
         Returns:
             Response: JSON response with token and user info or error message
         """

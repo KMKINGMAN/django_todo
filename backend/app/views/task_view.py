@@ -2,7 +2,8 @@
 """
 Todo application views.
 
-This module contains Django REST Framework views and serializers for the Todo model.
+This module contains Django REST Framework views and
+serializers for the Todo model.
 """
 
 from rest_framework import viewsets
