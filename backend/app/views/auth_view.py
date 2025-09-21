@@ -8,7 +8,7 @@ including login and token management.
 
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
@@ -48,3 +48,23 @@ class LoginView(APIView):
             {'error': 'Username and password required'},
             status=status.HTTP_400_BAD_REQUEST
         )
+
+
+class ValidateTokenView(APIView):
+    """API view for token validation."""
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        """
+        Handle GET request for token validation.
+        Args:
+            request: HTTP request with Authorization header
+        Returns:
+            Response: JSON response with user info if token is valid
+        """
+        return Response({
+            'valid': True,
+            'user_id': request.user.id,
+            'username': request.user.username
+        })

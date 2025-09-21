@@ -6,6 +6,6 @@ This module exports all view classes for the todo application.
 
 from .todo_view import TodoViewSet, dashboard
 from .task_view import TaskViewSet
-from .auth_view import LoginView
+from .auth_view import LoginView, ValidateTokenView
 
-__all__ = ['TodoViewSet', 'TaskViewSet', 'LoginView', 'dashboard']
+__all__ = ['TodoViewSet', 'TaskViewSet', 'LoginView', 'ValidateTokenView', 'dashboard']
