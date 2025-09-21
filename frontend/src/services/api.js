@@ -17,8 +17,30 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// Response interceptor to handle token expiration
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Token is invalid or expired
+      localStorage.removeItem('token');
+      localStorage.removeItem('username');
+      
+      // Only redirect if we're not already on the login page
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 export const login = (username, password) => {
   return api.post('/api/auth/login/', { username, password });
+};
+
+export const validateToken = () => {
+  return api.get('/api/auth/validate/');
 };
 
 export const logout = () => {
