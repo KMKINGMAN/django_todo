@@ -8,4 +8,10 @@ from .todo_view import TodoViewSet, dashboard
 from .task_view import TaskViewSet
 from .auth_view import LoginView, ValidateTokenView
 
-__all__ = ['TodoViewSet', 'TaskViewSet', 'LoginView', 'ValidateTokenView', 'dashboard']
+__all__ = [
+    'TodoViewSet',
+    'TaskViewSet',
+    'LoginView',
+    'ValidateTokenView',
+    'dashboard'
+]

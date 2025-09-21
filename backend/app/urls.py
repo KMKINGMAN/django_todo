@@ -19,5 +19,8 @@ router.register(r'tasks', TaskViewSet, basename='task')
 urlpatterns = [
     path('', include(router.urls)),
     path('auth/login/', LoginView.as_view(), name='api_login'),
-    path('auth/validate/', ValidateTokenView.as_view(), name='api_validate_token'),
+    path(
+        'auth/validate/', ValidateTokenView.as_view(),
+        name='api_validate_token'
+    ),
 ]
