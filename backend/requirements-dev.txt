@@ -1,0 +1,21 @@
+# Base requirements
+-r requirements.txt
+
+# Development and testing tools
+tox>=4.0.0
+flake8>=6.0.0
+flake8-django>=1.4
+black>=23.0.0
+isort>=5.12.0
+mypy>=1.0.0
+django-stubs>=4.2.0
+djangorestframework-stubs>=3.14.0
+types-requests
+bandit>=1.7.0
+safety>=2.3.0
+coverage>=7.0.0
+sphinx>=6.0.0
+sphinx-rtd-theme>=1.2.0
+sphinx-autodoc-typehints>=1.19.0
+pylint>=2.0.0
+pylint-django>=2.5.0
