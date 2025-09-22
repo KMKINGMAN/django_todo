@@ -1,4 +1,3 @@
-
 """
 Todo application views.
 
@@ -8,6 +7,7 @@ serializers for the Todo model.
 
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
+
 from ..models import Task
 from ..serializers import TaskSerializer
 
@@ -31,17 +31,19 @@ class TaskViewSet(viewsets.ModelViewSet):  # pylint: disable=too-many-ancestors
 
         """
         context = super().get_serializer_context()
-        include = self.request.query_params.get('include_todos') == '1'
-        context['include_todos'] = include
+        include = self.request.query_params.get("include_todos") == "1"
+        context["include_todos"] = include
         return context
 
     def get_queryset(self):
         """Return tasks filtered by current user or all for superuser."""
         if self.request.user.is_superuser:
-            return Task.objects.prefetch_related(
-                'todos').all().order_by('-created_at')
-        return Task.objects.filter(user=self.request.user).prefetch_related(
-            'todos').order_by('-created_at')
+            return Task.objects.prefetch_related("todos").all().order_by("-created_at")
+        return (
+            Task.objects.filter(user=self.request.user)
+            .prefetch_related("todos")
+            .order_by("-created_at")
+        )
 
     def perform_create(self, serializer):
         """Associate created task with current user.

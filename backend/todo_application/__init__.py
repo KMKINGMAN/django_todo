@@ -1,1 +1,1 @@
-""" Todo application package """
+"""Todo application package"""

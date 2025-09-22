@@ -20,21 +20,19 @@ class Task(models.Model):
         user: Foreign key to User model (owner of the task)
         todos: Reverse relationship from Todo model
     """
+
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='tasks'
-    )
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="tasks")
 
     class Meta:
         """Meta options for Task model."""
-        ordering = ['-created_at']
-        verbose_name = 'Task'
-        verbose_name_plural = 'Tasks'
+
+        ordering = ["-created_at"]
+        verbose_name = "Task"
+        verbose_name_plural = "Tasks"
 
     def __str__(self):
         """Return string representation of Task."""
