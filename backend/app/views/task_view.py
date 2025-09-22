@@ -24,7 +24,7 @@ class TaskViewSet(viewsets.ModelViewSet):  # pylint: disable=too-many-ancestors
         Passing include_todos here keeps request-specific logic in the view
         and allows the serializer to avoid querying/serializing todos when not
         requested by the client.
-        
+
         resources:
             https://www.django-rest-framework.org/api-guide/requests/#query_params
             https://www.django-rest-framework.org/api-guide/serializers/#including-extra-context
@@ -45,7 +45,7 @@ class TaskViewSet(viewsets.ModelViewSet):  # pylint: disable=too-many-ancestors
 
     def perform_create(self, serializer):
         """Associate created task with current user.
-        
+
         resources:
             https://www.cdrf.co/3.16/rest_framework.viewsets/ModelViewSet.html#perform_create
         """
