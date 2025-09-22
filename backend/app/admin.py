@@ -55,7 +55,6 @@ class TaskAdmin(admin.ModelAdmin):
     )
     list_filter = ('user', 'created_at', 'updated_at')
     search_fields = ('title', 'description', 'user__username')
-    list_per_page = 25
     date_hierarchy = 'created_at'
     fieldsets = (
         ('Basic Information', {
