@@ -256,6 +256,39 @@ Backend Tests
     python manage.py test tests.test_models
     python manage.py test tests.test_task_api
     python manage.py test tests.test_todo_api
+
+Tox Integration
+---------------
+
+This project uses Tox for automated testing across multiple environments:
+
+.. code-block:: bash
+
+    # Install tox
+    pip install tox
+    
+    # Run all tests across Python versions
+    tox
+    
+    # Quick test run
+    tox -e fast
+    
+    # Run with coverage
+    tox -e coverage
+    
+    # Code quality checks
+    tox -e lint
+    
+    # Use helper script
+    ./run_tox.sh test      # Run all tests
+    ./run_tox.sh coverage  # Coverage report
+    ./run_tox.sh lint      # Code style check
+
+📋 **Available Tox Environments:**
+
+* **Testing**: ``py310``, ``py311``, ``py312``, ``fast``, ``coverage``
+* **Quality**: ``lint``, ``format``, ``type-check``, ``security``
+* **Django**: ``django-check``, ``api-tests``, ``unit-tests``, ``integration``
     
 
 Code Quality
