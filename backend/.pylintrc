@@ -1,7 +1,7 @@
 [MASTER]
 ignore = migrations
 persistent = yes
-load-plugins = pylint_django,pylint_celery
+load-plugins = pylint_django
 
 [MESSAGES CONTROL]
 enable = 
