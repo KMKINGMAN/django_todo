@@ -27,6 +27,7 @@ class Todo(models.Model):
         user: Many-to-many relationship with User model
         tags: JSON field containing list of tag strings
     """
+
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True, null=True)
     completed = models.BooleanField(default=False)
@@ -34,31 +35,24 @@ class Todo(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='todos',
-        null=True,
-        blank=True
+        User, on_delete=models.CASCADE, related_name="todos", null=True, blank=True
     )
     task = models.ForeignKey(
-        'Task',
+        "Task",
         on_delete=models.CASCADE,
-        related_name='todos',
+        related_name="todos",
         null=True,
         blank=True,
-        help_text="Task this todo belongs to (optional)"
+        help_text="Task this todo belongs to (optional)",
     )
-    tags = models.JSONField(
-        blank=True,
-        null=True,
-        default=get_default_tags
-    )
+    tags = models.JSONField(blank=True, null=True, default=get_default_tags)
 
     class Meta:
         """Meta options for Todo model."""
-        ordering = ['-created_at']
-        verbose_name = 'Todo'
-        verbose_name_plural = 'Todos'
+
+        ordering = ["-created_at"]
+        verbose_name = "Todo"
+        verbose_name_plural = "Todos"
 
     def __str__(self):
         """Return string representation of Todo."""

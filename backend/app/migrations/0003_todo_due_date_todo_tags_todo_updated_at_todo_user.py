@@ -7,29 +7,31 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('app', '0002_todo_description'),
+        ("app", "0002_todo_description"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='todo',
-            name='due_date',
+            model_name="todo",
+            name="due_date",
             field=models.DateTimeField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='todo',
-            name='tags',
-            field=models.JSONField(blank=True, default=['general'], null=True),
+            model_name="todo",
+            name="tags",
+            field=models.JSONField(blank=True, default=["general"], null=True),
         ),
         migrations.AddField(
-            model_name='todo',
-            name='updated_at',
+            model_name="todo",
+            name="updated_at",
             field=models.DateTimeField(auto_now=True),
         ),
         migrations.AddField(
-            model_name='todo',
-            name='user',
-            field=models.ManyToManyField(blank=True, related_name='todos', to=settings.AUTH_USER_MODEL),
+            model_name="todo",
+            name="user",
+            field=models.ManyToManyField(
+                blank=True, related_name="todos", to=settings.AUTH_USER_MODEL
+            ),
         ),
     ]

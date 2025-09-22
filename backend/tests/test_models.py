@@ -8,7 +8,8 @@ including validation, relationships, and model methods.
 
 import pytest
 from django.contrib.auth.models import User
-from app.models import Todo, Task
+
+from app.models import Task, Todo
 
 
 @pytest.mark.django_db
@@ -17,9 +18,7 @@ class TestTodoModel:
 
     def test_create_todo_minimal(self):
         """Test creating a todo with minimal required fields."""
-        user = User.objects.create_user(
-            username="testuser", password="pass123"
-        )
+        user = User.objects.create_user(username="testuser", password="pass123")
 
         todo = Todo.objects.create(title="Test Todo", user=user)
 
@@ -34,9 +33,7 @@ class TestTodoModel:
 
     def test_create_todo_full_fields(self):
         """Test creating a todo with all fields populated."""
-        user = User.objects.create_user(
-            username="testuser", password="pass123"
-        )
+        user = User.objects.create_user(username="testuser", password="pass123")
         task = Task.objects.create(title="Test Task", user=user)
 
         todo = Todo.objects.create(
@@ -57,9 +54,7 @@ class TestTodoModel:
 
     def test_todo_str_representation(self):
         """Test the string representation of Todo model."""
-        user = User.objects.create_user(
-            username="testuser", password="pass123"
-        )
+        user = User.objects.create_user(username="testuser", password="pass123")
 
         # Test normal title
         todo = Todo.objects.create(title="Short Title", user=user)
@@ -72,22 +67,17 @@ class TestTodoModel:
 
     def test_todo_repr_representation(self):
         """Test the repr representation of Todo model."""
-        user = User.objects.create_user(
-            username="testuser", password="pass123"
-        )
+        user = User.objects.create_user(username="testuser", password="pass123")
         todo = Todo.objects.create(title="Test Todo", user=user)
 
         expected_repr = (
-            f"Todo(id={todo.id}, title='Test Todo', "
-            f"completed=False, user=testuser)"
+            f"Todo(id={todo.id}, title='Test Todo', " f"completed=False, user=testuser)"
         )
         assert repr(todo) == expected_repr
 
     def test_todo_ordering(self):
         """Test that todos are ordered by creation date (newest first)."""
-        user = User.objects.create_user(
-            username="testuser", password="pass123"
-        )
+        user = User.objects.create_user(username="testuser", password="pass123")
 
         todo1 = Todo.objects.create(title="First", user=user)
         todo2 = Todo.objects.create(title="Second", user=user)
@@ -100,9 +90,7 @@ class TestTodoModel:
 
     def test_todo_user_relationship(self):
         """Test the foreign key relationship with User."""
-        user = User.objects.create_user(
-            username="testuser", password="pass123"
-        )
+        user = User.objects.create_user(username="testuser", password="pass123")
 
         todo1 = Todo.objects.create(title="Todo 1", user=user)
         todo2 = Todo.objects.create(title="Todo 2", user=user)
@@ -115,9 +103,7 @@ class TestTodoModel:
 
     def test_todo_task_relationship(self):
         """Test the foreign key relationship with Task."""
-        user = User.objects.create_user(
-            username="testuser", password="pass123"
-        )
+        user = User.objects.create_user(username="testuser", password="pass123")
         task = Task.objects.create(title="Test Task", user=user)
 
         todo1 = Todo.objects.create(title="Todo 1", task=task, user=user)
@@ -131,9 +117,7 @@ class TestTodoModel:
 
     def test_todo_without_task(self):
         """Test creating a todo without associating it with a task."""
-        user = User.objects.create_user(
-            username="testuser", password="pass123"
-        )
+        user = User.objects.create_user(username="testuser", password="pass123")
 
         todo = Todo.objects.create(title="Standalone Todo", user=user)
 
@@ -141,9 +125,7 @@ class TestTodoModel:
 
     def test_todo_cascade_delete_user(self):
         """Test that todos are deleted when user is deleted."""
-        user = User.objects.create_user(
-            username="testuser", password="pass123"
-        )
+        user = User.objects.create_user(username="testuser", password="pass123")
         todo = Todo.objects.create(title="Test Todo", user=user)
 
         user.delete()
@@ -153,9 +135,7 @@ class TestTodoModel:
 
     def test_todo_cascade_delete_task(self):
         """Test that todos are deleted when associated task is deleted."""
-        user = User.objects.create_user(
-            username="testuser", password="pass123"
-        )
+        user = User.objects.create_user(username="testuser", password="pass123")
         task = Task.objects.create(title="Test Task", user=user)
         todo = Todo.objects.create(title="Test Todo", task=task, user=user)
 
@@ -172,9 +152,7 @@ class TestTaskModel:
 
     def test_create_task_minimal(self):
         """Test creating a task with minimal required fields."""
-        user = User.objects.create_user(
-            username="testuser", password="pass123"
-        )
+        user = User.objects.create_user(username="testuser", password="pass123")
 
         task = Task.objects.create(title="Test Task", user=user)
 
@@ -186,9 +164,7 @@ class TestTaskModel:
 
     def test_create_task_full_fields(self):
         """Test creating a task with all fields populated."""
-        user = User.objects.create_user(
-            username="testuser", password="pass123"
-        )
+        user = User.objects.create_user(username="testuser", password="pass123")
 
         task = Task.objects.create(
             title="Full Task", description="Full description", user=user
@@ -200,9 +176,7 @@ class TestTaskModel:
 
     def test_task_str_representation(self):
         """Test the string representation of Task model."""
-        user = User.objects.create_user(
-            username="testuser", password="pass123"
-        )
+        user = User.objects.create_user(username="testuser", password="pass123")
 
         # Test normal title
         task = Task.objects.create(title="Short Title", user=user)
@@ -215,22 +189,17 @@ class TestTaskModel:
 
     def test_task_repr_representation(self):
         """Test the repr representation of Task model."""
-        user = User.objects.create_user(
-            username="testuser", password="pass123"
-        )
+        user = User.objects.create_user(username="testuser", password="pass123")
         task = Task.objects.create(title="Test Task", user=user)
 
         expected_repr = (
-            f"Task(id={task.id}, title='Test Task', "
-            f"user={user.username})"
+            f"Task(id={task.id}, title='Test Task', " f"user={user.username})"
         )
         assert repr(task) == expected_repr
 
     def test_task_ordering(self):
         """Test that tasks are ordered by creation date (newest first)."""
-        user = User.objects.create_user(
-            username="testuser", password="pass123"
-        )
+        user = User.objects.create_user(username="testuser", password="pass123")
 
         task1 = Task.objects.create(title="First", user=user)
         task2 = Task.objects.create(title="Second", user=user)
@@ -243,9 +212,7 @@ class TestTaskModel:
 
     def test_task_user_relationship(self):
         """Test the foreign key relationship with User."""
-        user = User.objects.create_user(
-            username="testuser", password="pass123"
-        )
+        user = User.objects.create_user(username="testuser", password="pass123")
 
         task1 = Task.objects.create(title="Task 1", user=user)
         task2 = Task.objects.create(title="Task 2", user=user)
@@ -258,9 +225,7 @@ class TestTaskModel:
 
     def test_task_cascade_delete_user(self):
         """Test that tasks are deleted when user is deleted."""
-        user = User.objects.create_user(
-            username="testuser", password="pass123"
-        )
+        user = User.objects.create_user(username="testuser", password="pass123")
         task = Task.objects.create(title="Test Task", user=user)
 
         user.delete()
@@ -270,9 +235,7 @@ class TestTaskModel:
 
     def test_task_with_todos_relationship(self):
         """Test the relationship between task and its todos."""
-        user = User.objects.create_user(
-            username="testuser", password="pass123"
-        )
+        user = User.objects.create_user(username="testuser", password="pass123")
         task = Task.objects.create(title="Parent Task", user=user)
 
         # Create todos associated with the task

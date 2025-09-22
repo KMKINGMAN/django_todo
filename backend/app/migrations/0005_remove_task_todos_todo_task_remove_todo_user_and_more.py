@@ -8,27 +8,40 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('app', '0004_alter_todo_options_alter_todo_tags_task'),
+        ("app", "0004_alter_todo_options_alter_todo_tags_task"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='task',
-            name='todos',
+            model_name="task",
+            name="todos",
         ),
         migrations.AddField(
-            model_name='todo',
-            name='task',
-            field=models.ForeignKey(blank=True, help_text='Task this todo belongs to (optional)', null=True, on_delete=django.db.models.deletion.CASCADE, related_name='todos', to='app.task'),
+            model_name="todo",
+            name="task",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Task this todo belongs to (optional)",
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="todos",
+                to="app.task",
+            ),
         ),
         migrations.RemoveField(
-            model_name='todo',
-            name='user',
+            model_name="todo",
+            name="user",
         ),
         migrations.AddField(
-            model_name='todo',
-            name='user',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='todos', to=settings.AUTH_USER_MODEL),
+            model_name="todo",
+            name="user",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="todos",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
     ]

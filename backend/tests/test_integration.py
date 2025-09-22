@@ -15,14 +15,13 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.authtoken.models import Token
-from app.models import Todo, Task
+
+from app.models import Task, Todo
 
 
 def _login_and_authenticate(api_client, username, password):
     """Create a user with credentials, log in, and set token on client."""
-    user = User.objects.create_user(
-        username=username, password=password
-    )
+    user = User.objects.create_user(username=username, password=password)
     login_url = reverse("api_login")
     resp = api_client.post(
         login_url,
@@ -98,9 +97,7 @@ class TestTodoApplicationWorkflow:
         ]
 
         created = [
-            _create_todo(
-                api_client, title, task=task_id, description=desc, tags=tags
-            )
+            _create_todo(api_client, title, task=task_id, description=desc, tags=tags)
             for title, desc, tags in todos_specs
         ]
 

@@ -6,79 +6,79 @@ This module defines the admin interface for managing Todo and Task instances.
 
 from django.contrib import admin
 from django.db.models import Count
-from .models import Todo, Task
+
+from .models import Task, Todo
 
 
 class TodoInline(admin.TabularInline):
     """Inline admin for managing todos within a task."""
+
     model = Todo
-    fk_name = 'task'
+    fk_name = "task"
     extra = 1
     verbose_name = "Todo"
     verbose_name_plural = "Todos"
-    fields = ['title', 'description', 'completed', 'due_date']
+    fields = ["title", "description", "completed", "due_date"]
 
 
 @admin.register(Todo)
 class TodoAdmin(admin.ModelAdmin):
     """Admin interface for Todo model."""
+
     list_display = (
-        'id', 'title', 'completed', 'due_date',
-        'created_at', 'updated_at', 'tags', 'description'
+        "id",
+        "title",
+        "completed",
+        "due_date",
+        "created_at",
+        "updated_at",
+        "tags",
+        "description",
     )
-    list_filter = (
-        'completed', 'tags', 'task', 'user', 'created_at', 'updated_at'
-    )
-    search_fields = ('title', 'description', 'tags')
-    list_editable = ('completed',)
-    date_hierarchy = 'created_at'
+    list_filter = ("completed", "tags", "task", "user", "created_at", "updated_at")
+    search_fields = ("title", "description", "tags")
+    list_editable = ("completed",)
+    date_hierarchy = "created_at"
     fieldsets = (
-        ('Basic Information', {
-            'fields': ('title', 'description', 'completed')
-        }),
-        ('Timing', {
-            'fields': ('due_date', 'created_at', 'updated_at'),
-            'classes': ('collapse',)
-        }),
-        ('Organization', {
-            'fields': ('tags', 'user', 'task')
-        }),
+        ("Basic Information", {"fields": ("title", "description", "completed")}),
+        (
+            "Timing",
+            {
+                "fields": ("due_date", "created_at", "updated_at"),
+                "classes": ("collapse",),
+            },
+        ),
+        ("Organization", {"fields": ("tags", "user", "task")}),
     )
-    readonly_fields = ('created_at', 'updated_at')
+    readonly_fields = ("created_at", "updated_at")
 
 
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
     """Admin interface for Task model with inline todo editing."""
-    list_display = (
-        'id', 'title', 'user', 'created_at', 'updated_at', 'todos_count'
-    )
-    list_filter = ('user', 'created_at', 'updated_at')
-    search_fields = ('title', 'description', 'user__username')
+
+    list_display = ("id", "title", "user", "created_at", "updated_at", "todos_count")
+    list_filter = ("user", "created_at", "updated_at")
+    search_fields = ("title", "description", "user__username")
     list_per_page = 150
-    date_hierarchy = 'created_at'
+    date_hierarchy = "created_at"
     fieldsets = (
-        ('Basic Information', {
-            'fields': ('title', 'description', 'user')
-        }),
-        ('Timing', {
-            'fields': ('created_at', 'updated_at'),
-            'classes': ('collapse',)
-        }),
+        ("Basic Information", {"fields": ("title", "description", "user")}),
+        ("Timing", {"fields": ("created_at", "updated_at"), "classes": ("collapse",)}),
     )
-    readonly_fields = ('created_at', 'updated_at')
+    readonly_fields = ("created_at", "updated_at")
     inlines = [TodoInline]
 
     def todos_count(self, obj):
         """Return the annotated number of todos in this task."""
-        return getattr(obj, '_todos_count', 0)
+        return getattr(obj, "_todos_count", 0)
 
-    todos_count.short_description = 'Todos Count'
+    todos_count.short_description = "Todos Count"
 
     def get_queryset(self, request):
         """Filter tasks based on user permissions and annotate todos count."""
         queryset = super().get_queryset(request)
-        queryset = queryset.annotate(_todos_count=Count('todos'))
+        queryset = queryset.annotate(_todos_count=Count("todos"))
         if not request.user.is_superuser:
             queryset = queryset.filter(user=request.user)
         return queryset
@@ -87,7 +87,8 @@ class TaskAdmin(admin.ModelAdmin):
         """Limit user selection to current user for non-superusers."""
         if db_field.name == "user" and not request.user.is_superuser:
             kwargs["queryset"] = db_field.related_model.objects.filter(
-                id=request.user.id)
+                id=request.user.id
+            )
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
     def save_model(self, request, obj, form, change):

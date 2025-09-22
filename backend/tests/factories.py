@@ -4,10 +4,11 @@ Factory classes for creating test data.
 This module provides factory classes for creating test instances
 of models used in the Todo application testing.
 """
-import factory
 
+import factory
 from django.contrib.auth.models import User
-from app.models import Todo, Task
+
+from app.models import Task, Todo
 
 
 class UserFactory(factory.django.DjangoModelFactory):
