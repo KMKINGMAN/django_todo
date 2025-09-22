@@ -201,7 +201,9 @@ class TestTodoApplicationWorkflow:
         assert Task.objects.filter(id=task.id).exists()
         assert Todo.objects.filter(task=task).count() == 3
 
-        delete = authenticated_client.delete(reverse("task-detail", kwargs={"pk": task.id}))
+        delete = authenticated_client.delete(
+            reverse("task-detail", kwargs={"pk": task.id})
+        )
         assert delete.status_code == status.HTTP_204_NO_CONTENT
         assert not Task.objects.filter(id=task.id).exists()
         assert not Todo.objects.filter(id__in=[a.id, b.id, c.id]).exists()
