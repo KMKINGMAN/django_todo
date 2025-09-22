@@ -4,8 +4,6 @@ Todo application views for Todo.
 This module contains Django REST Framework views for the Todo model.
 """
 
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from ..models import Todo
@@ -31,9 +29,3 @@ class TodoViewSet(viewsets.ModelViewSet):  # pylint: disable=too-many-ancestors
     def perform_create(self, serializer):
         """Associate created todo with current user."""
         serializer.save(user=self.request.user)
-
-
-@login_required
-def dashboard(request):
-    """Render the dashboard template for authenticated users."""
-    return render(request, "dashboard.html", {"user": request.user})
