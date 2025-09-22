@@ -30,7 +30,6 @@ class TodoAdmin(admin.ModelAdmin):
     )
     search_fields = ('title', 'description', 'tags')
     list_editable = ('completed',)
-    list_per_page = 25
     date_hierarchy = 'created_at'
     fieldsets = (
         ('Basic Information', {
