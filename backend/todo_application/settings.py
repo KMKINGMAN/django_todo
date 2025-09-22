@@ -10,17 +10,20 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Load environment variables from .env file
+load_dotenv(BASE_DIR / '.env')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
-
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-!i_5w9x7iuw=&4q!f7e$acu8!$)+475hsjkki%a@bx_1!w4-%5'
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-fallback-key-for-testing-only')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -81,9 +84,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'todo_application.wsgi.application'
-
-# After login redirect
-LOGIN_REDIRECT_URL = '/dashboard/'
 
 # Django REST Framework settings
 REST_FRAMEWORK = {
