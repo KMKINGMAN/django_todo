@@ -52,6 +52,11 @@ export const getTasks = () => {
   return api.get('/api/tasks/');
 };
 
+export const getTask = (taskId, includeTodos = false) => {
+  const params = includeTodos ? { include_todos: '1' } : {};
+  return api.get(`/api/tasks/${taskId}/`, { params });
+};
+
 export const addTask = (task) => {
   return api.post('/api/tasks/', task);
 };

@@ -8,7 +8,7 @@ import TaskList from '../components/TaskList';
 import TodoForm from '../components/TodoForm';
 import TodoList from '../components/TodoList';
 import TaskDetailView from '../components/TaskDetailView';
-import { getTasks, getTodos, addTask, addTodo, removeTask, removeTodo, logout } from '../services/api';
+import { getTasks, getTodos, getTask, addTask, addTodo, removeTask, removeTodo, logout } from '../services/api';
 
 const DashboardPage = () => {
   const navigate = useNavigate();
@@ -81,16 +81,9 @@ const DashboardPage = () => {
     try {
       setSelectedTask(task);
       setView('task-detail');
-      
-      // Fetch todos for this specific task
-      const todosResponse = await getTodos();
-      const taskTodos = todosResponse.data.filter(todo => todo.task === task.id);
-      
-      // Update the selected task with its todos
-      setSelectedTask({
-        ...task,
-        todos: taskTodos
-      });
+  // Fetch the task with nested todos from the API
+  const taskResponse = await getTask(task.id, true);
+  setSelectedTask(taskResponse.data);
     } catch (error) {
       console.error('Error fetching task details:', error);
     }
@@ -118,13 +111,13 @@ const DashboardPage = () => {
     
     // Update the selected task with the new todo
     if (selectedTask) {
-      const todosResponse = await getTodos();
-      const taskTodos = todosResponse.data.filter(t => t.task === selectedTask.id);
-      
-      setSelectedTask({
-        ...selectedTask,
-        todos: taskTodos
-      });
+      // Re-fetch the selected task including its todos
+      try {
+        const taskResponse = await getTask(selectedTask.id, true);
+        setSelectedTask(taskResponse.data);
+      } catch (err) {
+        console.error('Error refreshing selected task:', err);
+      }
     }
   };
 
