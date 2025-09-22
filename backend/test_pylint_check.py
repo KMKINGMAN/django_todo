@@ -25,6 +25,8 @@ try:
         'tests/test_auth_api.py',
         'tests/test_integration.py',
         'tests/factories.py',
+        'tests/test_task_serializer_update.py',
+        'tests/test_admin_taskadmin.py'
     ]
     
     for test_file in test_files:
