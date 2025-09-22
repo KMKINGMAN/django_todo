@@ -15,7 +15,12 @@ from rest_framework.views import APIView
 
 
 class LoginView(APIView):
-    """API view for user authentication and token generation."""
+    """API view for user authentication and token generation.
+    resources:
+        https://www.django-rest-framework.org/api-guide/views/#class-based-views
+        https://www.django-rest-framework.org/api-guide/authentication/#tokenauthentication
+        https://www.cdrf.co/3.16/rest_framework.views/APIView.html
+    """
 
     permission_classes = [AllowAny]
     http_method_names = ['post']
