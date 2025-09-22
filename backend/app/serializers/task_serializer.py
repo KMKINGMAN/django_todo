@@ -43,21 +43,26 @@ class TaskSerializer(serializers.ModelSerializer):
         read_only_fields = ['created_at', 'updated_at', 'user']
 
     def get_todos(self, obj):
-        """Get todos for this task filtered by current user."""
+        """Get todos for this task filtered by current user.
+
+        Skip querying/serializing todos when serializer context indicates the
+        client did not request them (include_todos=False). The view is
+        responsible for placing `include_todos` into the serializer context.
+        """
+        include = self.context.get('include_todos', False)
+        if not include:
+            return []
+
         request = self.context.get('request')
-        if request and hasattr(request,
-                               'user') and request.user.is_authenticated:
-            # Get todos that belong to this task and current user
+        if request and hasattr(request, 'user') and request.user.is_authenticated:
             todos_queryset = obj.todos.filter(
                 user=request.user).order_by('-created_at')
             return TaskTodoSerializer(todos_queryset, many=True).data
         return []
 
     def get_todos_count(self, obj):
-        """Get the count of todos for this task filtered by current user."""
         request = self.context.get('request')
-        if request and hasattr(request,
-                               'user') and request.user.is_authenticated:
+        if request and hasattr(request, 'user') and request.user.is_authenticated:
             return obj.todos.filter(user=request.user).count()
         return 0
 
@@ -101,13 +106,3 @@ class TaskSerializer(serializers.ModelSerializer):
                 instance.todos.add(todo)
 
         return instance
-
-    def to_representation(self, instance):
-        """Customize representation based on include_todos parameter."""
-        data = super().to_representation(instance)
-        request = self.context.get('request')
-
-        if request and request.query_params.get('include_todos') != '1':
-            data.pop('todos', None)
-
-        return data
