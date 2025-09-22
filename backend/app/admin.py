@@ -5,6 +5,7 @@ This module defines the admin interface for managing Todo and Task instances.
 """
 
 from django.contrib import admin
+from django.db.models import Count
 from .models import Todo, Task
 
 
@@ -54,6 +55,7 @@ class TaskAdmin(admin.ModelAdmin):
     )
     list_filter = ('user', 'created_at', 'updated_at')
     search_fields = ('title', 'description', 'user__username')
+    list_per_page = 150
     date_hierarchy = 'created_at'
     fieldsets = (
         ('Basic Information', {
@@ -68,13 +70,15 @@ class TaskAdmin(admin.ModelAdmin):
     inlines = [TodoInline]
 
     def todos_count(self, obj):
-        """Return the number of todos in this task."""
-        return obj.todos.count()
+        """Return the annotated number of todos in this task."""
+        return getattr(obj, '_todos_count', 0)
+
     todos_count.short_description = 'Todos Count'
 
     def get_queryset(self, request):
-        """Filter tasks based on user permissions."""
+        """Filter tasks based on user permissions and annotate todos count."""
         queryset = super().get_queryset(request)
+        queryset = queryset.annotate(_todos_count=Count('todos'))
         if not request.user.is_superuser:
             queryset = queryset.filter(user=request.user)
         return queryset
